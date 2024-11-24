@@ -1,5 +1,10 @@
 # 😋 AngkringanPedia 😋
 
+## 📜 Backstory AngkringanPedia
+
+Indonesia memiliki warisan kuliner yang kaya, dan salah satu tradisi paling ikonik adalah angkringan—warung kecil di pinggir jalan yang menawarkan makanan dan minuman sederhana dengan harga terjangkau. Dari nasi kucing yang legendaris hingga berbagai pilihan sate dan gorengan, angkringan adalah tempat yang menyatukan orang dari berbagai lapisan masyarakat untuk berbincang, menikmati suasana, dan berbagi cerita.
+Namun, tidak semua orang bisa menemukan angkringan favorit mereka dengan mudah, terutama di tengah semakin banyaknya pilihan kuliner yang ada. Terinspirasi oleh semangat kebersamaan dan kehangatan dari angkringan, lahirlah AngkringanPedia.
+
 ## 🤔 Apa itu AngkringanPedia?
 
 Yuk, pecinta angkringan! Bosan bingung mau makan apa? AngkringanPedia solusinya! Dengan AngkringanPedia, kamu bisa puas menjelajah ribuan menu angkringan favoritmu, dari nasi kucing yang bikin nagih sampai gorengan yang renyah. Mau cari sate favorit? Tinggal klik! Bikin ulasan dan rating, bagi rekomendasi sama teman-teman, dan jadi bagian dari komunitas pecinta angkringan terbesar! Yuk, cobain sekarang dan rasakan sensasi kuliner angkringan yang makin seru!
@@ -133,4 +138,77 @@ Pada aplikasi kami, terdapat tiga jenis pengguna:
 Penjelasan lebih rinci tentang setiap jenis pengguna dan kewenangannya dalam aplikasi tersedia di deskripsi masing-masing modul.
 
 
-<!--test tracker-->
+## 🌊 Alur Pengintegrasian
+
+1. Setup Awal di Django:
+    - Membuat django-app authentication
+    - Menginstall django-cors-headers untuk menangani Cross-Origin Resource Sharing
+    - Mengkonfigurasi settings.py untuk mengizinkan koneksi dari Flutter
+    ```python
+    CORS_ALLOW_ALL_ORIGINS = True
+    CORS_ALLOW_CREDENTIALS = True
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = True
+    ```
+    - Menambahkan "10.0.2.2" ke ALLOWED_HOSTS untuk akses dari emulator Android
+
+2. Membuat Endpoint API di Django:
+    - Membuat views untuk authentication (login/register)
+    - Membuat views untuk operasi CRUD
+    - Mengatur routing URL untuk endpoint-endpoint tersebut
+    - Memastikan endpoint mengembalikan response dalam format JSON
+
+3. Setup Flutter:
+    - Menginstall package pbp_django_auth dan provider
+    - Mengkonfigurasi Provider di main.dart untuk state management
+    - Membuat model sesuai dengan struktur JSON dari Django
+
+4. Alur Komunikasi:
+
+    a. Login:
+
+    - User memasukkan credentials di Flutter
+    - Flutter mengirim POST request ke endpoint Django (/auth/login/)
+    - Django memverifikasi dan mengembalikan response
+    - Flutter menyimpan session cookie jika login berhasil
+
+    b. Operasi CRUD:
+
+    - Flutter mengirim request ke endpoint Django dengan cookie session
+    - Django memverifikasi session dan mengeksekusi operasi
+    - Django mengembalikan response JSON
+    - Flutter memproses response dan update UI
+
+5. Contoh Flow Request:
+    ```text
+    Flutter App -> HTTP Request -> Django Server
+                                    |
+                                Verify Session
+                                    |
+                            Process Request
+                                    |
+    Flutter App <- JSON Response <- Django Server
+    ```
+
+6. Format Komunikasi
+    - Request dari Flutter:
+        ```dart
+        final response = await request.login(
+            "http://your-url/auth/login/",
+            {'username': username, 'password': password}
+        );
+        ```
+    - Response dari Django:
+        ```python
+        return JsonResponse({
+            "status": True,
+            "message": "Login sukses!",
+            "username": user.username
+        })
+        ```
+
+7. Keamanan 
+    - Menggunakan CSRF token untuk keamanan
+    - Implementasi session management
+    - Validasi input di kedua sisi (Flutter dan Django)
+    - HTTPS untuk komunikasi yang aman (wajib untuk production)
