@@ -18,7 +18,7 @@ Yuk, pecinta angkringan! Bosan bingung mau makan apa? AngkringanPedia solusinya!
 | 2306152430 | Malvin Scafi | [Cyades](https://github.com/Cyades) |
 | 2306227955 | Ischika Afrilla | [kaachiii](https://github.com/kaachiii) |
 | 2306216075 | Juan Lukius Barnaby | [juanlukius](https://github.com/juanlukius) |
-| 2306221970 | Arya Gilang | [AryaGilangP](https://github.com/AryaGilangP) |
+| 2306221970 | Arya Gilang Prasetya | [AryaGilangP](https://github.com/AryaGilangP) |
 | 2306202826 | Nobel Julian Bintang | [nobeljb](https://github.com/nobeljb) |
 
 ## 🗂️ Modul
