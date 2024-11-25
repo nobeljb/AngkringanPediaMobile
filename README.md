@@ -109,11 +109,11 @@ Fungsi Modul:
 - Rating dan Ulasan Produk: Pengguna dapat memberikan rating dan menulis ulasan pada makanan, dan rating rata-rata akan diperbarui secara otomatis.
 
 Berikut aksi yang dapat dilakukan masing-masing _role_:
-| User | Guest |
-| ---- | ----- |
-| Melihat detail produk makanan | Melihat detail produk makanan |
-| Memberi, mengedit, atau menghapus ulasan dan rating | - |
-| Melihat rating rata-rata | Melihat rating rata-rata |
+| User | Guest | Admin |
+| ---- | ----- | ----- |
+| Melihat detail produk makanan | Melihat detail produk makanan | Melihat detail produk makanan |
+| Memberi, mengedit, atau menghapus ulasan dan rating | - | Mengedit, atau menghapus ulasan dan rating |
+| Melihat rating rata-rata | Melihat rating rata-rata | Melihat rating rata-rata |
 
 
 ### ⭐ Favourite
