@@ -42,7 +42,7 @@ Berikut aksi yang dapat dilakukan masing-masing _role_:
 | Logout akun | - | Tambah/Hapus akun admin |
 
 
-### 🖥️ Dashboard
+### 🖥️ Dashboard and Artikel
 
 **Dikerjakan oleh Arya Gilang Prasetya**
 
@@ -59,6 +59,21 @@ Berikut aksi yang dapat dilakukan masing-masing _role_:
 | Melihat dan mengedit profil | - | Melihat data pengguna |
 | Memperbarui informasi pribadi	| - | Mengedit informasi pengguna |
 | - | - | Menghapus akun pengguna |
+
+Modul Artikel dirancang untuk memberikan informasi tambahan kepada pengguna melalui artikel yang relevan dengan topik makanan, gaya hidup sehat, atau berita terkini terkait kuliner. Modul ini membantu meningkatkan pengalaman pengguna dengan konten yang informatif dan menarik.
+
+Fungsi Modul:
+
+Penjelajahan Artikel: Menyediakan daftar artikel yang dapat dibaca oleh pengguna.
+- Detail Artikel: Memungkinkan pengguna melihat detail artikel termasuk gambar, judul, isi, dan tanggal publikasi.
+- Manajemen Artikel (Admin): Admin dapat membuat, mengedit, dan menghapus artikel yang tersedia di platform.
+
+Berikut aksi yang dapat dilakukan masing-masing _role_:
+| User | Guest | Admin |
+| ---- | ----- | ----- |
+| Melihat isi artikel | Melihat isi artikel | Mengedit artikel |
+| Melihat daftar artikel | Melihat daftar artikel | Menambahkan artikel |
+| Menandai artikel favorit	| - | Menghapus artikel |
 
 ### 🏠 Homepage, Search and Filter
 
