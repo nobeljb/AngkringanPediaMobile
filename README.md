@@ -32,7 +32,7 @@ Fungsi Modul:
 - Login: Menyediakan mekanisme login berbasis email/username dan password untuk pengguna dan admin.
 - Logout: Menyediakan tombol logout untuk menghentikan sesi pengguna.
 - Manajemen Admin: Admin dapat menambah, menghapus, atau mengedit informasi akun admin sendiri.
-- Pengawasan Akun: Admin dapat melihat dan memoderasi akun pengguna, memastikan hanya akun yang sah yang bisa mengakses sistem.
+- Pengawasan Akun: Admin dapat melihat dan mengedit akun pengguna, memastikan hanya akun yang sah yang bisa mengakses sistem.
 
 Berikut aksi yang dapat dilakukan masing-masing _role_:
 | User | Guest | Admin |
