@@ -112,7 +112,7 @@ Berikut aksi yang dapat dilakukan masing-masing _role_:
 | User | Guest |
 | ---- | ----- |
 | Melihat detail produk makanan | Melihat detail produk makanan |
-| Memberi ulasan dan rating | - |
+| Memberi, mengedit, atau menghapus ulasan dan rating | - |
 | Melihat rating rata-rata | Melihat rating rata-rata |
 
 
