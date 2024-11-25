@@ -37,9 +37,9 @@ Fungsi Modul:
 Berikut aksi yang dapat dilakukan masing-masing _role_:
 | User | Guest | Admin |
 | ---- | ----- | ----- |
-| Registrasi akun | Registrasi akun	| Mengelola data admin | 
-| Login akun | Login akun | Mengawasi akun pengguna |
-| Logout akun | - | Tambah/Hapus akun admin |
+| Registrasi akun | Registrasi akun	| Mengelola data pengguna (admin atau user) | 
+| Login akun | Login akun | Mengawasi akun pengguna (admin atau user) |
+| Logout akun | - | Tambah/Hapus akun pengguna (admin atau user) |
 
 
 ### 🖥️ Dashboard and Artikel
