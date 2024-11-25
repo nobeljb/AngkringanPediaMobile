@@ -106,16 +106,14 @@ Modul ini menampilkan katalog makanan yang memungkinkan pengguna untuk melihat d
 
 Fungsi Modul:
 - Detail Produk Makanan: Menyediakan informasi lengkap mengenai setiap makanan, termasuk deskripsi, harga, dan gambar.
-- Ulasan Produk: Pengguna dapat menulis ulasan yang akan ditampilkan kepada pengguna lain.
-- Rating Produk: Pengguna dapat memberikan rating pada makanan, dan rating rata-rata akan diperbarui secara otomatis.
-- Moderasi Ulasan: Admin memiliki kemampuan untuk menghapus ulasan yang tidak pantas atau memoderasi konten ulasan.
+- Rating dan Ulasan Produk: Pengguna dapat memberikan rating dan menulis ulasan pada makanan, dan rating rata-rata akan diperbarui secara otomatis.
 
 Berikut aksi yang dapat dilakukan masing-masing _role_:
-| User | Guest | Admin |
-| ---- | ----- | ----- |
-| Melihat detail produk makanan | Melihat detail produk makanan | Mengelola ulasan pengguna |
-| Memberi ulasan dan rating | - | Menghapus/memoderasi ulasan |
-| Melihat rating rata-rata | Melihat rating rata-rata | - |
+| User | Guest |
+| ---- | ----- |
+| Melihat detail produk makanan | Melihat detail produk makanan |
+| Memberi ulasan dan rating | - |
+| Melihat rating rata-rata | Melihat rating rata-rata |
 
 
 ### ⭐ Favourite
