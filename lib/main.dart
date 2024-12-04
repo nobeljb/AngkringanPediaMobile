@@ -1,4 +1,4 @@
-import 'package:angkringan_pedia/screens/home_page.dart';
+import 'package:angkringan_pedia/home/screens/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:angkringan_pedia/menu.dart';
 
