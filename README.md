@@ -6,7 +6,7 @@ https://docs.google.com/spreadsheets/d/1N2a_wzHApscAcT2jkCYGwbxMVowg98ffWWfUY7l6
 ## 📜 Backstory AngkringanPedia
 
 Indonesia memiliki warisan kuliner yang kaya, dan salah satu tradisi paling ikonik adalah angkringan—warung kecil di pinggir jalan yang menawarkan makanan dan minuman sederhana dengan harga terjangkau. Dari nasi kucing yang legendaris hingga berbagai pilihan sate dan gorengan, angkringan adalah tempat yang menyatukan orang dari berbagai lapisan masyarakat untuk berbincang, menikmati suasana, dan berbagi cerita.
-Namun, tidak semua orang bisa menemukan angkringan favorit mereka dengan mudah, terutama di tengah semakin banyaknya pilihan kuliner yang ada. Terinspirasi oleh semangat kebersamaan dan kehangatan dari angkringan, lahirlah AngkringanPedia..
+Namun, tidak semua orang bisa menemukan angkringan favorit mereka dengan mudah, terutama di tengah semakin banyaknya pilihan kuliner yang ada. Terinspirasi oleh semangat kebersamaan dan kehangatan dari angkringan, lahirlah AngkringanPedia.
 
 ## 🤔 Apa itu AngkringanPedia?
 
