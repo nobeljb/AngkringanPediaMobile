@@ -108,7 +108,7 @@ class RecipeCard extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                         Expanded(
-                          child: Text(
+                          child:  Text(
                             recipe.servings,
                             style: const TextStyle(
                               fontSize: 12,

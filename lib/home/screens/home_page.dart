@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import '../widgets/search_bar.dart';
+import '../widgets/header.dart';
 import '../widgets/recipe_card.dart';
 import '../models/recipe.dart';
 import '../theme/app_theme.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -13,8 +12,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  String searchQuery = '';
-  String filterType = 'none';
   List<Recipe> recipes = [];
   bool isLoading = false;
 
@@ -30,58 +27,22 @@ class _HomePageState extends State<HomePage> {
     setState(() => isLoading = false);
   }
 
+  Future<void> _handleSearch(String query, String filter) async {
+    setState(() => isLoading = true);
+    // TODO: Implement search functionality
+    setState(() => isLoading = false);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(70),
-        child: AppBar(
-          backgroundColor: AppColors.darkOliveGreen,
-          title: Row(
-            children: [
-              Image.asset(
-                'assets/images/logo2.png',
-                height: 40,
-              ),
-              const SizedBox(width: 12),
-              Text(
-                'AngkringanPedia',
-                style: GoogleFonts.poppins(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.honeydew,
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            HoverIconButton(
-              icon: Icons.favorite_border,
-              onPressed: () {},
-            ),
-            HoverIconButton(
-              icon: Icons.person,
-              onPressed: () {},
-            ),
-            const SizedBox(width: 16),
-          ],
-        ),
-      ),
       body: Column(
         children: [
-          CustomSearchBar(
-            onSearch: (query, filter) {
-              setState(() {
-                searchQuery = query;
-                filterType = filter;
-              });
-              _loadRecipes();
-            },
-          ),
+          Header(onSearch: _handleSearch),
           Expanded(
             child: isLoading
-                ? const Center(
+                ? Center(
                     child: CircularProgressIndicator(
                       color: AppColors.darkOliveGreen,
                     ),
@@ -93,11 +54,11 @@ class _HomePageState extends State<HomePage> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {},
         backgroundColor: AppColors.buttonColor,
-        label: const Text(
+        label: Text(
           'Add Recipe',
           style: TextStyle(color: AppColors.honeydew),
         ),
-        icon: const Icon(Icons.add, color: AppColors.honeydew),
+        icon: Icon(Icons.add, color: AppColors.honeydew),
       ),
     );
   }
