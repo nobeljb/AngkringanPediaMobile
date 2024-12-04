@@ -1,3 +1,4 @@
+import 'package:angkringan_pedia/home/screens/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:angkringan_pedia/menu.dart';
 
@@ -32,7 +33,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const HomePage()
     );
   }
 }
