@@ -1,6 +1,6 @@
 # 😋 AngkringanPedia 😋
 
-## 🔗 Tautan Pelacak Kemajuan
+## 🔗 Tautan Pelacak Progres
 https://docs.google.com/spreadsheets/d/1N2a_wzHApscAcT2jkCYGwbxMVowg98ffWWfUY7l6-Ls/edit?usp=sharing
 
 ## 📜 Latar Belakang AngkringanPedia
