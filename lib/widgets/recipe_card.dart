@@ -35,6 +35,7 @@ class RecipeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: AppColors.honeydew,
       child: Stack(
         children: [
           Column(
@@ -52,11 +53,11 @@ class RecipeCard extends StatelessWidget {
                   errorBuilder: (context, error, stackTrace) {
                     return Container(
                       height: 140,
-                      color: AppTheme.lightGreen.withOpacity(0.2),
+                      color: AppColors.sageGreen.withOpacity(0.2),
                       child: Icon(
                         Icons.restaurant,
                         size: 40,
-                        color: AppTheme.primaryGreen.withOpacity(0.5),
+                        color: AppColors.darkOliveGreen.withOpacity(0.5),
                       ),
                     );
                   },
@@ -72,7 +73,7 @@ class RecipeCard extends StatelessWidget {
                       style: GoogleFonts.poppins(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: AppTheme.primaryGreen,
+                        color: AppColors.darkOliveGreen,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -83,7 +84,7 @@ class RecipeCard extends StatelessWidget {
                         const Icon(
                           Icons.access_time,
                           size: 16,
-                          color: AppTheme.oliveGreen,
+                          color: AppColors.buttonColor,
                         ),
                         const SizedBox(width: 4),
                         Expanded(
@@ -91,7 +92,7 @@ class RecipeCard extends StatelessWidget {
                             recipe.cookingTime,
                             style: const TextStyle(
                               fontSize: 12,
-                              color: AppTheme.oliveGreen,
+                              color: AppColors.buttonColor,
                             ),
                           ),
                         ),
@@ -103,7 +104,7 @@ class RecipeCard extends StatelessWidget {
                         const Icon(
                           Icons.people,
                           size: 16,
-                          color: AppTheme.oliveGreen,
+                          color: AppColors.buttonColor,
                         ),
                         const SizedBox(width: 4),
                         Expanded(
@@ -111,7 +112,7 @@ class RecipeCard extends StatelessWidget {
                             recipe.servings,
                             style: const TextStyle(
                               fontSize: 12,
-                              color: AppTheme.oliveGreen,
+                              color: AppColors.buttonColor,
                             ),
                           ),
                         ),
@@ -128,7 +129,7 @@ class RecipeCard extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AppTheme.mintGreen,
+                color: AppColors.honeydew,
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
@@ -141,7 +142,7 @@ class RecipeCard extends StatelessWidget {
               child: const Icon(
                 Icons.favorite_border,
                 size: 20,
-                color: AppTheme.primaryGreen,
+                color: AppColors.darkOliveGreen,
               ),
             ),
           ),

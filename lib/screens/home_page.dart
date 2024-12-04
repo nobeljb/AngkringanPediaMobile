@@ -1,9 +1,8 @@
-// lib/screens/home_page.dart
-import 'package:angkringan_pedia/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import '../widgets/search_bar.dart';
 import '../widgets/recipe_card.dart';
 import '../models/recipe.dart';
+import '../theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class HomePage extends StatefulWidget {
@@ -34,9 +33,11 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.backgroundColor,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(70),
         child: AppBar(
+          backgroundColor: AppColors.darkOliveGreen,
           title: Row(
             children: [
               Image.asset(
@@ -49,18 +50,18 @@ class _HomePageState extends State<HomePage> {
                 style: GoogleFonts.poppins(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: AppTheme.mintGreen,
+                  color: AppColors.honeydew,
                 ),
               ),
             ],
           ),
           actions: [
-            IconButton(
-              icon: const Icon(Icons.favorite_border, color: AppTheme.mintGreen),
+            HoverIconButton(
+              icon: Icons.favorite_border,
               onPressed: () {},
             ),
-            IconButton(
-              icon: const Icon(Icons.person, color: AppTheme.mintGreen),
+            HoverIconButton(
+              icon: Icons.person,
               onPressed: () {},
             ),
             const SizedBox(width: 16),
@@ -82,7 +83,7 @@ class _HomePageState extends State<HomePage> {
             child: isLoading
                 ? const Center(
                     child: CircularProgressIndicator(
-                      color: AppTheme.oliveGreen,
+                      color: AppColors.darkOliveGreen,
                     ),
                   )
                 : RecipeGrid(recipes: recipes),
@@ -91,11 +92,12 @@ class _HomePageState extends State<HomePage> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {},
+        backgroundColor: AppColors.buttonColor,
         label: const Text(
           'Add Recipe',
-          style: TextStyle(color: AppTheme.mintGreen),
+          style: TextStyle(color: AppColors.honeydew),
         ),
-        icon: const Icon(Icons.add, color: AppTheme.mintGreen),
+        icon: const Icon(Icons.add, color: AppColors.honeydew),
       ),
     );
   }
