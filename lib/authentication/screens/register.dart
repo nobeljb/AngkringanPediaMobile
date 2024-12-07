@@ -184,8 +184,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         "email": email,
                         "phone_number": phone,
                         "gender": gender,
-                        "is_admin":
-                            _isAdmin, // Mengirimkan status Admin
+                        "is_admin": _isAdmin, // Mengirimkan status Admin
                         // Anda bisa mengirimkan file image jika ada
                         "profile_image": _profileImage != null
                             ? await MultipartFile.fromFile(_profileImage!.path)
@@ -193,7 +192,6 @@ class _RegisterPageState extends State<RegisterPage> {
                       };
 
                       print(jsonEncode(requestData));
-
 
                       // final response = await request.postJson(
                       //   "http://127.0.0.1:8000/authentication/register-flutter/",
@@ -225,16 +223,30 @@ class _RegisterPageState extends State<RegisterPage> {
                       );
 
                       print('Response: ${response}');
+                      // if (response['status'] == 'success') {
+                      //   ScaffoldMessenger.of(context).showSnackBar(
+                      //     const SnackBar(
+                      //         content: Text('Successfully registered!')),
+                      //   );
+                      //   Navigator.pushReplacement(
+                      //     context,
+                      //     MaterialPageRoute(
+                      //         builder: (context) => const LoginPage()),
+                      //   );
+                      // } else {
+                      //   ScaffoldMessenger.of(context).showSnackBar(
+                      //     SnackBar(
+                      //         content: Text(
+                      //             'Failed to register: ${response['message']}')),
+                      //   );
+                      // }
                       if (response['status'] == 'success') {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                               content: Text('Successfully registered!')),
                         );
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const LoginPage()),
-                        );
+                        Navigator.pop(
+                            context); // This will take the user back to the previous page
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
