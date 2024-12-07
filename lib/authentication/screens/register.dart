@@ -1,4 +1,4 @@
-import 'package:dio/dio.dart';  // Pastikan dio sudah diimport
+import 'package:dio/dio.dart'; // Pastikan dio sudah diimport
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:angkringan_pedia/authentication/screens/login.dart';
@@ -21,12 +21,14 @@ class _RegisterPageState extends State<RegisterPage> {
   final _phoneController = TextEditingController();
   String _gender = 'M'; // Default gender
   XFile? _profileImage;
+  bool _isAdmin = false; // Checkbox state for Register as Admin
 
   final _picker = ImagePicker();
 
   // Method untuk memilih image dari galeri
   Future<void> _pickImage() async {
-    final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    final XFile? pickedFile =
+        await _picker.pickImage(source: ImageSource.gallery);
     setState(() {
       _profileImage = pickedFile;
     });
@@ -71,6 +73,30 @@ class _RegisterPageState extends State<RegisterPage> {
                     decoration: const InputDecoration(
                       labelText: 'Username',
                       hintText: 'Enter your username',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12.0),
+                  TextFormField(
+                    controller: _passwordController,
+                    obscureText: true,
+                    decoration: const InputDecoration(
+                      labelText: 'Password',
+                      hintText: 'Enter your password',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12.0),
+                  TextFormField(
+                    controller: _confirmPasswordController,
+                    obscureText: true,
+                    decoration: const InputDecoration(
+                      labelText: 'Confirm Password',
+                      hintText: 'Confirm your password',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(12.0)),
                       ),
@@ -124,33 +150,20 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                   ),
                   const SizedBox(height: 12.0),
+                  CheckboxListTile(
+                    title: const Text('Register as Admin'),
+                    value: _isAdmin,
+                    onChanged: (bool? value) {
+                      setState(() {
+                        _isAdmin = value!;
+                      });
+                    },
+                    controlAffinity: ListTileControlAffinity.leading,
+                  ),
+                  const SizedBox(height: 12.0),
                   ElevatedButton(
                     onPressed: _pickImage,
                     child: const Text('Pick Profile Image'),
-                  ),
-                  const SizedBox(height: 12.0),
-                  TextFormField(
-                    controller: _passwordController,
-                    obscureText: true,
-                    decoration: const InputDecoration(
-                      labelText: 'Password',
-                      hintText: 'Enter your password',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 12.0),
-                  TextFormField(
-                    controller: _confirmPasswordController,
-                    obscureText: true,
-                    decoration: const InputDecoration(
-                      labelText: 'Confirm Password',
-                      hintText: 'Confirm your password',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                      ),
-                    ),
                   ),
                   const SizedBox(height: 24.0),
                   ElevatedButton(
@@ -171,34 +184,62 @@ class _RegisterPageState extends State<RegisterPage> {
                         "email": email,
                         "phone_number": phone,
                         "gender": gender,
+                        "is_admin":
+                            _isAdmin, // Mengirimkan status Admin
                         // Anda bisa mengirimkan file image jika ada
                         "profile_image": _profileImage != null
                             ? await MultipartFile.fromFile(_profileImage!.path)
                             : null,
                       };
 
+                      print(jsonEncode(requestData));
+
+
+                      // final response = await request.postJson(
+                      //   "http://127.0.0.1:8000/authentication/register-flutter/",
+                      //   jsonEncode(requestData),
+                      // );
+
+                      // if (response['status'] == 'success') {
+                      //   ScaffoldMessenger.of(context).showSnackBar(
+                      //     const SnackBar(
+                      //       content: Text('Successfully registered!'),
+                      //     ),
+                      //   );
+                      //   Navigator.pushReplacement(
+                      //     context,
+                      //     MaterialPageRoute(
+                      //       builder: (context) => const LoginPage(),
+                      //     ),
+                      //   );
+                      // } else {
+                      //   ScaffoldMessenger.of(context).showSnackBar(
+                      //     const SnackBar(
+                      //       content: Text('Failed to register!'),
+                      //     ),
+                      //   );
+                      // }
                       final response = await request.postJson(
                         "http://127.0.0.1:8000/authentication/register-flutter/",
                         jsonEncode(requestData),
                       );
 
+                      print('Response: ${response}');
                       if (response['status'] == 'success') {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('Successfully registered!'),
-                          ),
+                              content: Text('Successfully registered!')),
                         );
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const LoginPage(),
-                          ),
+                              builder: (context) => const LoginPage()),
                         );
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Failed to register!'),
-                          ),
+                          SnackBar(
+                              content: Text(
+                                  'Failed to register: ${response['message']}')),
                         );
                       }
                     },

@@ -1,4 +1,5 @@
 import 'package:angkringan_pedia/authentication/screens/list_profile.dart';
+import 'package:angkringan_pedia/authentication/screens/register.dart';
 import 'package:angkringan_pedia/menu.dart';
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
@@ -175,7 +176,7 @@ class _LoginPageState extends State<LoginPage> {
                         context,
                         MaterialPageRoute(
                             builder: (context) =>
-                                const Placeholder()), // ke register page
+                                const RegisterPage()), // ke register page
                       );
                     },
                     child: Text(

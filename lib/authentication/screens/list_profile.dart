@@ -39,13 +39,13 @@ class _ListProfilePageState extends State<ListProfilePage> {
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No profiles found.'));
+            return const Center(child: Text('Belum ada data user pada Angkringan Pedia.'));
           } else {
             return ListView.builder(
               itemCount: snapshot.data.length,
               itemBuilder: (context, index) {
                 final profile = snapshot.data[index];
-                final imageUrl = "http://127.0.0.1:8000/authentication${profile.fields.profileImage}"; 
+                final imageUrl = "http://127.0.0.1:8000/${profile.fields.profileImage}"; 
                 return ListTile(
                   leading: CircleAvatar(
                     backgroundImage: NetworkImage(imageUrl),
