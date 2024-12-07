@@ -17,7 +17,7 @@ class LoginApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Login',
+      title: 'Angkringan Pedia',
       theme: AppTheme.theme, // Gunakan tema dari AppTheme
       home: const LoginPage(),
     );
@@ -41,7 +41,7 @@ class _LoginPageState extends State<LoginPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Login'),
+        title: const Text('Angkringan Pedia'),
       ),
       body: Center(
         child: SingleChildScrollView(
@@ -169,7 +169,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     child: const Text('Login'),
                   ),
-                  const SizedBox(height: 36.0),
+                  const SizedBox(height: 20.0),
                   GestureDetector(
                     onTap: () {
                       Navigator.push(
@@ -181,6 +181,24 @@ class _LoginPageState extends State<LoginPage> {
                     },
                     child: Text(
                       'Don\'t have an account? Register',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontSize: 16.0,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20.0),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                const HomePage()), // ke register page
+                      );
+                    },
+                    child: Text(
+                      'Try Guest Mode? Guest Mode',
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.primary,
                         fontSize: 16.0,

@@ -1,35 +1,23 @@
+import 'package:angkringan_pedia/authentication/screens/list_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:angkringan_pedia/authentication/models/profile.dart';
+import 'package:angkringan_pedia/authentication/screens/edit_profile.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
 
 class ProfileDetailPage extends StatelessWidget {
   final Profile profile;
 
   const ProfileDetailPage({Key? key, required this.profile}) : super(key: key);
 
-  // Function to delete the profile
-  Future<void> deleteProfile(BuildContext context) async {
-    // Call the API to delete the profile (this needs to be implemented)
-    // Assuming you have a function `deleteProfileAPI` to delete the profile
-    // final response = await deleteProfileAPI(profile.id);
-
-    // Show a snackbar or handle the response
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Profile deleted successfully.')),
-    );
-
-    // Optionally, navigate back to the previous page
-    Navigator.pop(context);
-  }
-
   @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
+
     return Scaffold(
       appBar: AppBar(
         title: Text(profile.fields.username),
-        actions: [
-          // You can remove the delete button in the app bar
-          // or leave it if you want both buttons.
-        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -38,7 +26,8 @@ class ProfileDetailPage extends StatelessWidget {
           children: [
             Center(
               child: CircleAvatar(
-                backgroundImage: NetworkImage("http://127.0.0.1:8000/authentication${profile.fields.profileImage}"),
+                backgroundImage: NetworkImage(
+                    "http://127.0.0.1:8000/authentication${profile.fields.profileImage}"),
                 radius: 50,
               ),
             ),
@@ -67,39 +56,78 @@ class ProfileDetailPage extends StatelessWidget {
               "Role: ${profile.fields.isAdmin}",
               style: const TextStyle(fontSize: 18),
             ),
-            const Spacer(), // Spacer to push the delete button to the bottom
-            Align(
-              alignment: Alignment.bottomCenter, // Make sure the delete button is at the bottom
-              child: IconButton(
-                icon: const Icon(Icons.delete, color: Colors.red, size: 40), // Delete icon
-                onPressed: () async {
-                  // Confirm the deletion with a dialog
-                  final confirmDelete = await showDialog<bool>(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: const Text('Delete Profile'),
-                        content: const Text('Are you sure you want to delete this profile?'),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.of(context).pop(false),
-                            child: const Text('Cancel'),
-                          ),
-                          TextButton(
-                            onPressed: () => Navigator.of(context).pop(true),
-                            child: const Text('Delete'),
-                          ),
-                        ],
-                      );
-                    },
-                  );
+            const Spacer(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.edit, color: Colors.blue, size: 40),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => Placeholder(),
+                      ),
+                    );
+                  },
+                ),
+                IconButton(
+                    icon: const Icon(Icons.delete, color: Colors.red, size: 40),
+                    onPressed: () async {
+                      final url =
+                          "http://127.0.0.1:8000/authentication/adminkudelete/${profile.fields.user}";
 
-                  if (confirmDelete == true) {
-                    // Proceed with the deletion
-                    await deleteProfile(context);
-                  }
-                },
-              ),
+// Get the CSRF token from the cookies stored in `request`
+                      final csrfToken = request.cookies['csrftoken']
+                          ?.toString(); // Ensure it's a string
+
+                      print('CSRF Token: $csrfToken');  // Check if token is printed correctly
+
+// Check if the CSRF token is available
+                      if (csrfToken == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('CSRF token is missing')),
+                        );
+                        return;
+                      }
+
+// Create headers, ensuring CSRF token and Content-Type are included
+                      final Map<String, String> headers = {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken':
+                            csrfToken, // CSRF token to be sent in headers
+                        'Cookie':
+                            'csrftoken=$csrfToken', // Send CSRF token in cookies
+                      };
+
+                      try {
+                        final response =
+                            await http.delete(Uri.parse(url), headers: headers);
+
+                        if (response.statusCode == 200) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('Successfully deleted!')),
+                          );
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const ListProfilePage()),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('Failed to delete profile.')),
+                          );
+                        }
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Error: ${e.toString()}')),
+                        );
+                      }
+                    }),
+              ],
             ),
           ],
         ),
