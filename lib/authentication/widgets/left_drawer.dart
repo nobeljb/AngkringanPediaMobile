@@ -1,5 +1,7 @@
+import 'package:angkringan_pedia/authentication/screens/list_profile.dart';
 import 'package:angkringan_pedia/authentication/screens/login.dart';
 import 'package:angkringan_pedia/authentication/screens/register.dart';
+import 'package:angkringan_pedia/home/screens/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart'; // Assuming this is where CookieRequest is defined
 import 'package:provider/provider.dart';
@@ -42,6 +44,28 @@ class LeftDrawer extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.home_work),
+            title: const Text('Admin Page'),
+            // Handle the logout operation
+            onTap: () async {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ListProfilePage()),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.home),
+            title: const Text('Home Page'),
+            // Handle the logout operation
+            onTap: () async {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const HomePage()),
+              );
+            },
           ),
           ListTile(
             leading: const Icon(Icons.edit),
