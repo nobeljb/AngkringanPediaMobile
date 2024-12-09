@@ -1,4 +1,5 @@
 // lib/screens/home_page.dart
+import 'package:angkringan_pedia/home/screens/add_recipe_screen.dart';
 import 'package:flutter/material.dart';
 import '../widgets/header.dart';
 import '../widgets/recipe_card.dart';
@@ -75,12 +76,17 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
+        onPressed: () async {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AddRecipeScreen()),
+          );
+          if (result == true) {
+            _loadRecipes(); // Reload recipes after adding new one
+          }
+        },
         backgroundColor: AppColors.buttonColor,
-        label: const Text(
-          'Add Recipe',
-          style: TextStyle(color: AppColors.honeydew),
-        ),
+        label: const Text('Add Recipe', style: TextStyle(color: AppColors.honeydew)),
         icon: const Icon(Icons.add, color: AppColors.honeydew),
       ),
     );
