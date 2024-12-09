@@ -75,57 +75,20 @@ class ProfileDetailPage extends StatelessWidget {
                     icon: const Icon(Icons.delete, color: Colors.red, size: 40),
                     onPressed: () async {
                       final url =
-                          "http://127.0.0.1:8000/authentication/adminkudelete/${profile.fields.user}";
+                          "http://127.0.0.1:8000/authentication/adminkudeleteflutter/${profile.fields.user}";
 
-// Get the CSRF token from the cookies stored in `request`
-                      final csrfToken = request.cookies['csrftoken']
-                          ?.toString(); // Ensure it's a string
+                      final response = await http.delete(Uri.parse(url));
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const ListProfilePage()),
+                      );
 
-                      print('CSRF Token: $csrfToken');  // Check if token is printed correctly
-
-// Check if the CSRF token is available
-                      if (csrfToken == null) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text('CSRF token is missing')),
-                        );
-                        return;
-                      }
-
-// Create headers, ensuring CSRF token and Content-Type are included
-                      final Map<String, String> headers = {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken':
-                            csrfToken, // CSRF token to be sent in headers
-                        'Cookie':
-                            'csrftoken=$csrfToken', // Send CSRF token in cookies
-                      };
-
-                      try {
-                        final response =
-                            await http.delete(Uri.parse(url), headers: headers);
-
-                        if (response.statusCode == 200) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text('Successfully deleted!')),
-                          );
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const ListProfilePage()),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text('Failed to delete profile.')),
-                          );
-                        }
-                      } catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Error: ${e.toString()}')),
-                        );
-                      }
+                      // if (response.statusCode == 200) {
+                      //   print("User deleted successfully: ${response.body}");
+                      // } else {
+                      //   print("Failed to delete user: ${response.statusCode}");
+                      // }
                     }),
               ],
             ),
