@@ -7,6 +7,43 @@ import '../models/recipe.dart';
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
 
+class RecipeGrid extends StatelessWidget {
+  final List<Recipe> recipes;
+  final bool isAdmin;
+  final Function(int)? onDeleteRecipe;
+
+  const RecipeGrid({
+    Key? key, 
+    required this.recipes,
+    this.isAdmin = true,
+    this.onDeleteRecipe,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.builder(
+      padding: const EdgeInsets.all(16),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 0.75,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 16,
+      ),
+      itemCount: recipes.length,
+      itemBuilder: (context, index) {
+        final recipe = recipes[index];
+        return RecipeCard(
+          recipe: recipe,
+          isAdmin: isAdmin,
+          onDelete: onDeleteRecipe != null 
+            ? () => onDeleteRecipe!(recipe.id)
+            : null,
+        );
+      },
+    );
+  }
+}
+
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 

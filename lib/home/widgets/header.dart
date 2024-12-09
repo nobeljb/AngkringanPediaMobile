@@ -1,5 +1,4 @@
 import 'package:angkringan_pedia/home/models/recipe.dart';
-import 'package:angkringan_pedia/home/widgets/recipe_card.dart';
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -182,55 +181,6 @@ class _HoverIconButtonState extends State<HoverIconButton> {
         ),
         onPressed: widget.onPressed,
         splashRadius: 24,
-      ),
-    );
-  }
-}
-
-// Update the HomePage to use the new Header
-class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
-
-  @override
-  _HomePageState createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  List<Recipe> recipes = [];
-  bool isLoading = false;
-
-  Future<void> _handleSearch(String query, String filter) async {
-    setState(() => isLoading = true);
-    // TODO: Implement search functionality
-    setState(() => isLoading = false);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
-      body: Column(
-        children: [
-          Header(onSearch: _handleSearch),
-          Expanded(
-            child: isLoading
-                ? const Center(
-                    child: CircularProgressIndicator(
-                      color: AppColors.darkOliveGreen,
-                    ),
-                  )
-                : RecipeGrid(recipes: recipes),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
-        backgroundColor: AppColors.buttonColor,
-        label: const Text(
-          'Add Recipe',
-          style: TextStyle(color: AppColors.honeydew),
-        ),
-        icon: const Icon(Icons.add, color: AppColors.honeydew),
       ),
     );
   }

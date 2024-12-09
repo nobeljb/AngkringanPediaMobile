@@ -90,4 +90,19 @@ class ApiService {
       }
     }
   }
+
+    Future<bool> deleteRecipe(int recipeId) async {
+    try {
+      final response = await http.delete(
+        Uri.parse('$baseUrl/delete/$recipeId'),
+        headers: {
+          'Accept': 'application/json',
+        },
+      );
+      
+      return response.statusCode == 204;
+    } catch (e) {
+      throw Exception('Failed to delete recipe: $e');
+    }
+  }
 }
