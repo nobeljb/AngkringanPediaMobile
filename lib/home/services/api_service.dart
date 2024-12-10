@@ -91,7 +91,7 @@ class ApiService {
     }
   }
 
-    Future<bool> deleteRecipe(int recipeId) async {
+  Future<bool> deleteRecipe(int recipeId) async {
     try {
       final response = await http.delete(
         Uri.parse('$baseUrl/delete/$recipeId'),

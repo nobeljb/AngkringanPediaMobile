@@ -6,10 +6,14 @@ import 'package:google_fonts/google_fonts.dart';
 
 class RecipeCard extends StatelessWidget {
   final Recipe recipe;
+  final bool isAdmin;
+  final Function()? onDelete;
 
   const RecipeCard({
     Key? key, 
-    required this.recipe, required bool isAdmin, Function()? onDelete,
+    required this.recipe,
+    required this.isAdmin,
+    this.onDelete,
   }) : super(key: key);
 
   @override
@@ -155,7 +159,9 @@ class RecipeCard extends StatelessWidget {
                                 style: TextStyle(color: Colors.red),
                               ),
                               onPressed: () {
-                                // Add your delete logic here
+                                if (onDelete != null) {
+                                  onDelete!();
+                                }
                                 Navigator.of(context).pop();
                               },
                             ),

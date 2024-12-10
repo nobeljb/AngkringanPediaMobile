@@ -108,7 +108,24 @@ class _HomePageState extends State<HomePage> {
                       color: AppColors.darkOliveGreen,
                     ),
                   )
-                : RecipeGrid(recipes: recipes),
+                : RecipeGrid(
+                  recipes: recipes,
+                  isAdmin: true,
+                  onDeleteRecipe: (int recipeId) async {
+                    try {
+                      final deleted = await ApiService().deleteRecipe(recipeId);
+                      if (deleted) {
+                        setState(() {
+                          recipes.removeWhere((recipe) => recipe.id == recipeId);
+                        });
+                      }
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Failed to delete recipe: $e')),
+                      );
+                    }
+                  },
+                ),
           ),
         ],
       ),
