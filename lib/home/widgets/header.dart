@@ -71,7 +71,7 @@ class _HeaderState extends State<Header> {
                       controller: _searchController,
                       style: const TextStyle(color: AppColors.darkOliveGreen),
                       decoration: InputDecoration(
-                        hintText: 'Search recipes...',
+                        hintText: _getSearchHint(),
                         hintStyle: TextStyle(
                           color: AppColors.darkOliveGreen.withOpacity(0.5),
                         ),
@@ -114,6 +114,8 @@ class _HeaderState extends State<Header> {
                 _buildFilterItem('none', 'No Filter'),
                 _buildFilterItem('name', 'By Name'),
                 _buildFilterItem('ingredient', 'By Ingredient'),
+                _buildFilterItem('servings', 'By Servings'),
+                _buildFilterItem('cooking_time', 'By Cooking Time'),
               ],
             ),
           ),
@@ -136,6 +138,21 @@ class _HeaderState extends State<Header> {
     );
   }
 
+  String _getSearchHint() {
+    switch (_selectedFilter) {
+      case 'name':
+        return 'Search by recipe name...';
+      case 'ingredient':
+        return 'Search by ingredient...';
+      case 'servings':
+        return 'Search by number of servings...';
+      case 'cooking_time':
+        return 'Search by cooking time...';
+      default:
+        return 'Search recipes...';
+    }
+  }
+
   PopupMenuItem<String> _buildFilterItem(String value, String text) {
     return PopupMenuItem<String>(
       value: value,
@@ -147,7 +164,7 @@ class _HeaderState extends State<Header> {
   }
 }
 
-// Updated HoverIconButton
+// HoverIconButton stays exactly the same as in your original code
 class HoverIconButton extends StatefulWidget {
   final IconData icon;
   final VoidCallback onPressed;

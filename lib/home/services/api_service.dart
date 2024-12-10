@@ -1,10 +1,9 @@
-// lib/services/api_service.dart
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/recipe.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://localhost:8000/'; // Update with your server URL
+  static const String baseUrl = 'http://localhost:8000/';
 
   Future<List<Recipe>> searchRecipes(String query, String filter) async {
     try {
@@ -20,13 +19,42 @@ class ApiService {
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
         final List<dynamic> recipesJson = data['recipes'];
-        return recipesJson.map((json) => Recipe.fromJson(json)).toList();
+        final recipes = recipesJson.map((json) => Recipe.fromJson(json)).toList();
+        
+        // Additional client-side filtering if needed
+        return _filterRecipes(recipes, query, filter);
       } else {
         throw Exception('Failed to search recipes');
       }
     } catch (e) {
       throw Exception('Failed to connect to server: $e');
     }
+  }
+
+  List<Recipe> _filterRecipes(List<Recipe> recipes, String query, String filter) {
+    if (query.isEmpty) return recipes;
+    
+    query = query.toLowerCase();
+    return recipes.where((recipe) {
+      switch (filter) {
+        case 'name':
+          return recipe.recipeName.toLowerCase().contains(query);
+        case 'ingredient':
+          return recipe.ingredients.any(
+            (ingredient) => ingredient.toLowerCase().contains(query)
+          );
+        case 'servings':
+          return recipe.servings.toLowerCase().contains(query);
+        case 'cooking_time':
+          return recipe.cookingTime.toLowerCase().contains(query);
+        default:
+          return recipe.recipeName.toLowerCase().contains(query) ||
+                 recipe.ingredients.any((ingredient) => 
+                     ingredient.toLowerCase().contains(query)) ||
+                 recipe.servings.toLowerCase().contains(query) ||
+                 recipe.cookingTime.toLowerCase().contains(query);
+      }
+    }).toList();
   }
 
   Future<Map<String, dynamic>> addRecipe(Map<String, dynamic> recipeData) async {
