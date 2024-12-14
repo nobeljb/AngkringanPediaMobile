@@ -115,7 +115,9 @@ class _LoginPageState extends State<LoginPage> {
                         bool isAdmin = response['is_admin']; // Periksa apakah admin
 
                         // Simpan nama dengan menggunakan FlutterSecureStorage
-                        await storage.write(key: 'username', value: uname);  // Menyimpan token
+                        await storage.write(key: 'username', value: uname); 
+                        await storage.write(key: 'id', value: response['id'].toString());
+
                         // print("is_admin value: ${response['is_admin']}");
                         // print("Is Admin: $isAdmin");
 

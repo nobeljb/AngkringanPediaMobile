@@ -34,7 +34,14 @@ class _RecipeScreenState extends State<RecipeScreen> {
   late Future<Recipe> recipe;
   String? username; // Simpan nama pengguna yang sedang login
   int? recipeId;
+  int? userId;
   final storage = FlutterSecureStorage();
+
+  // Fungsi untuk mengambil userId dari FlutterSecureStorage dan mengonversinya ke integer
+  Future<int?> getUserIdFromStorage() async {
+    String? idStr = await storage.read(key: 'id');
+    return idStr != null ? int.tryParse(idStr) : null;  // Mengonversi string ke int
+  }
 
   // Ambil data dari API berdasarkan ID
   Future<Recipe> fetchRecipe() async {
@@ -44,6 +51,7 @@ class _RecipeScreenState extends State<RecipeScreen> {
 
     if (response.statusCode == 200) {
       username = await storage.read(key: 'username');
+      userId = await getUserIdFromStorage();
       return recipeFromJson(response.body);
     } else {
       throw Exception('Failed to load recipe');
@@ -111,7 +119,7 @@ class _RecipeScreenState extends State<RecipeScreen> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => RatingReviewForm(recipeId: recipeId!), // Halaman untuk menambahkan ulasan
+            builder: (context) => RatingReviewForm(recipeId: recipeId!, userId: userId!,), // Halaman untuk menambahkan ulasan
           ),
         );
       }
@@ -338,7 +346,7 @@ class _RecipeScreenState extends State<RecipeScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => RatingReviewForm(recipeId: recipeId!),
+                              builder: (context) => RatingReviewForm(recipeId: recipeId!, userId: userId!,),
                             ),
                           );
                         },
