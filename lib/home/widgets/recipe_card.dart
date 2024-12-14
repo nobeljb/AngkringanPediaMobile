@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/recipe.dart';
 import '../theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:angkringan_pedia/home/screens/recipe_details.dart';
 
 class RecipeCard extends StatelessWidget {
   final Recipe recipe;
@@ -20,19 +21,11 @@ class RecipeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        // Navigate to empty page when card is clicked
+        // Navigate to recipe details
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => Scaffold(
-              appBar: AppBar(
-                title: Text(recipe.recipeName),
-                backgroundColor: AppColors.darkOliveGreen,
-              ),
-              body: const Center(
-                child: Text('Empty Page'),
-              ),
-            ),
+            builder: (context) => RecipeDetails(recipeId: recipe.id),
           ),
         );
       },
