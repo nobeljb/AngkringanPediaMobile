@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../models/details.dart'; // Pastikan model Recipe berada di sini
-import '../theme/app_theme.dart'; // Import tema aplikasi
+import '../../home/theme/app_theme.dart'; // Import tema aplikasi
 
 class RecipeDetails extends StatelessWidget {
   final int recipeId; // Tambahkan parameter recipeId
