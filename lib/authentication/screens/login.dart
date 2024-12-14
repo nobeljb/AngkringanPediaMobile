@@ -6,6 +6,7 @@ import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:angkringan_pedia/home/screens/home_page.dart';
 import 'package:angkringan_pedia/home/theme/app_theme.dart'; // Import AppTheme
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 void main() {
   runApp(const LoginApp());
@@ -96,6 +97,9 @@ class _LoginPageState extends State<LoginPage> {
                       String username = _usernameController.text;
                       String password = _passwordController.text;
 
+                      // Buat instance FlutterSecureStorage
+                      final storage = FlutterSecureStorage();
+
                       // Cek kredensial
                       final response = await request.login(
                         "http://127.0.0.1:8000/authentication/login-flutter/",
@@ -110,6 +114,8 @@ class _LoginPageState extends State<LoginPage> {
                         String uname = response['username'];
                         bool isAdmin = response['is_admin']; // Periksa apakah admin
 
+                        // Simpan nama dengan menggunakan FlutterSecureStorage
+                        await storage.write(key: 'username', value: uname);  // Menyimpan token
                         // print("is_admin value: ${response['is_admin']}");
                         // print("Is Admin: $isAdmin");
 
