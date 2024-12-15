@@ -1,4 +1,5 @@
 import 'package:angkringan_pedia/foodcatalog/screens/add_rating_review.dart';
+import 'package:angkringan_pedia/home/screens/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
@@ -13,10 +14,9 @@ class RecipeDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.theme, // Terapkan tema kustom
-      home: RecipeScreen(recipeId: recipeId), // Teruskan recipeId
+    return Theme(
+      data: AppTheme.theme, // Terapkan tema
+      child: RecipeScreen(recipeId: recipeId),
     );
   }
 }
@@ -82,30 +82,16 @@ class _RecipeScreenState extends State<RecipeScreen> {
     );
   }
 
-  // Fungsi untuk mengecek apakah pengguna sudah memberikan ulasan
   void checkReview(List<dynamic> ratings) {
     if (username == null) {
+      // Tampilkan dialog jika pengguna belum login
       showDialog(
         context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Not Logged In'),
-          content: const Text('You need to log in to leave a review.'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('OK'),
-            ),
-          ],
-        ),
-      );
-    } else {
-      final hasReviewed = ratings.any((rating) => rating['username'] == username);
-      if (hasReviewed) {
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Already Reviewed'),
-            content: const Text('You have already reviewed this recipe.'),
+        builder: (context) => Theme(
+          data: AppTheme.theme, // Terapkan tema kustom untuk dialog
+          child: AlertDialog(
+            title: const Text('Not Logged In'),
+            content: const Text('You need to log in to leave a review.'),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
@@ -113,13 +99,45 @@ class _RecipeScreenState extends State<RecipeScreen> {
               ),
             ],
           ),
-        );
-      } else {
-        // Jika belum memberikan review, pindahkan ke halaman untuk menambahkan review
+        ),
+      );
+    } else {
+      // Cari review pengguna berdasarkan username
+      final userReview = ratings.firstWhere(
+        (rating) => rating['username'] == username,
+        orElse: () => null,
+      );
+
+      if (userReview != null) {
+        // Jika sudah mereview, navigasikan ke form dengan data yang ada
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => RatingReviewForm(recipeId: recipeId!, userId: userId!,), // Halaman untuk menambahkan ulasan
+            builder: (context) => Theme(
+              data: AppTheme.theme, // Terapkan tema kustom untuk RatingReviewForm
+              child: RatingReviewForm(
+                recipeId: recipeId!,
+                userId: userId!,
+                initialRating: userReview['score'].toDouble(),
+                initialReview: userReview['content'],
+                hasReviewed: true, // Tandai bahwa pengguna telah memberikan ulasan
+              ),
+            ),
+          ),
+        );
+      } else {
+        // Jika belum memberikan review, navigasikan ke form untuk menambahkan ulasan
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Theme(
+              data: AppTheme.theme, // Terapkan tema kustom untuk RatingReviewForm
+              child: RatingReviewForm(
+                recipeId: recipeId!,
+                userId: userId!,
+                hasReviewed: false, // Tandai bahwa belum ada ulasan
+              ),
+            ),
           ),
         );
       }
@@ -131,6 +149,16 @@ class _RecipeScreenState extends State<RecipeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Recipe Details'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back), // Ikon panah balik
+          onPressed: () {
+            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const HomePage()),
+            );
+          },
+        ),
         backgroundColor: AppColors.darkOliveGreen,
       ),
       body: FutureBuilder<Recipe>(
@@ -319,7 +347,7 @@ class _RecipeScreenState extends State<RecipeScreen> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.darkOliveGreen,
                         ),
-                        child: const Text('Check My Review'),
+                        child: const Text('Review'),
                       ),
                     ]else ...[
                       const Text(
@@ -341,19 +369,11 @@ class _RecipeScreenState extends State<RecipeScreen> {
                       const SizedBox(height: 20),
                       // Tombol untuk menambahkan review jika tidak ada rating
                       ElevatedButton(
-                        onPressed: () {
-                          // Arahkan ke halaman untuk menambahkan rating dan review
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => RatingReviewForm(recipeId: recipeId!, userId: userId!,),
-                            ),
-                          );
-                        },
+                        onPressed: () => checkReview(recipe.ratings),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.darkOliveGreen,
                         ),
-                        child: const Text('Add a Review'),
+                        child: const Text('Add A Review'),
                       ),
                     ],
                   ],
@@ -365,8 +385,4 @@ class _RecipeScreenState extends State<RecipeScreen> {
       ),
     );
   }
-}
-
-void main() {
-  runApp(const RecipeDetails(recipeId: 1)); // Contoh penggunaan dengan ID 1
 }

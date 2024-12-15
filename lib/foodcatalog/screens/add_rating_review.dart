@@ -11,11 +11,13 @@ class RatingReviewForm extends StatefulWidget {
   final String initialReview; // Initial review passed as argument
   final int recipeId; // Recipe ID passed as argument
   final int userId; // User ID passed as argument
+  final bool hasReviewed;
 
   const RatingReviewForm({
     Key? key,
     this.initialRating = 0.0, // Default value if no rating is passed
     this.initialReview = '', // Default value if no review is passed
+    this.hasReviewed = false, // Default value if no hasReviewed is passed
     required this.recipeId, // Recipe ID is required
     required this.userId, // User ID is required
   }) : super(key: key);
@@ -56,43 +58,120 @@ class _RatingReviewFormState extends State<RatingReviewForm> {
         'content': _reviewController.text,
       };
 
-      // Send HTTP POST request to Django
-      try {
-        final response = await http.post(
-          Uri.parse('http://127.0.0.1:8000/catalog/flutter/create/'), // Replace with your Django server URL
-          headers: {
-            'Content-Type': 'application/json',
-            // You may need to add an Authorization header for user authentication if needed
-          },
-          body: json.encode(reviewData),
-        );
+      if (!widget.hasReviewed) {
+        // Send HTTP POST request to Django
+        try {
+          final response = await http.post(
+            Uri.parse('http://127.0.0.1:8000/catalog/flutter/create'), // Replace with your Django server URL
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: json.encode(reviewData),
+          );
 
-        if (response.statusCode == 200) {
-          final responseData = json.decode(response.body);
-          if (responseData['status'] == 'success') {
+          if (response.statusCode == 200) {
+            final responseData = json.decode(response.body);
+            if (responseData['status'] == 'success') {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Review Submitted Successfully!')),
+              );
+              // Navigate back to RecipeDetails page
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RecipeDetails(recipeId: widget.recipeId),
+                ),
+              );
+            }
+          } else {
+            // Handle error response
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Review Submitted Successfully!')),
-            );
-            // Navigate back to RecipeDetails page
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => RecipeDetails(recipeId: widget.recipeId),
-              ),
+              const SnackBar(content: Text('Failed to submit review.')),
             );
           }
-        } else {
-          // Handle error response
+        } catch (e) {
+          // Handle network error
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Failed to submit review.')),
+            const SnackBar(content: Text('Network error, please try again.')),
           );
         }
-      } catch (e) {
-        // Handle network error
+      }else{
+        // Update review menggunakan endpoint edit_rating_review_flutter
+        try {
+          final response = await http.post(
+            Uri.parse('http://127.0.0.1:8000/catalog/flutter/edit'), // Endpoint Update
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: json.encode(reviewData),
+          );
+
+          if (response.statusCode == 200) {
+            final responseData = json.decode(response.body);
+            if (responseData['status'] == 'success') {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Review Updated Successfully!')),
+              );
+              // Kembali ke halaman detail resep
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RecipeDetails(recipeId: widget.recipeId),
+                ),
+              );
+            }
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Failed to update review.')),
+            );
+          }
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Network error, please try again.')),
+          );
+        }
+      }
+    }
+  }
+
+  void _deleteReview() async {
+    final reviewData = {
+      'user_id': widget.userId,
+      'recipe_id': widget.recipeId,
+    };
+
+    try {
+      final response = await http.post(
+        Uri.parse('http://127.0.0.1:8000/catalog/flutter/delete'), // Endpoint Delete
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode(reviewData),
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        if (responseData['status'] == 'success') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Review Deleted Successfully!')),
+          );
+          // Kembali ke halaman detail resep
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => RecipeDetails(recipeId: widget.recipeId),
+            ),
+          );
+        }
+      } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Network error, please try again.')),
+          const SnackBar(content: Text('Failed to delete review.')),
         );
       }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Network error, please try again.')),
+      );
     }
   }
 
@@ -155,21 +234,33 @@ class _RatingReviewFormState extends State<RatingReviewForm> {
                 ),
               ),
               const SizedBox(height: 16),
-              Center(
-                child: ElevatedButton(
-                  onPressed: _submitForm,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.darkOliveGreen, // Custom theme color
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 32,
-                      vertical: 12,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  ElevatedButton(
+                    onPressed: _submitForm,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.darkOliveGreen,
+                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                    ),
+                    child: Text(
+                      widget.hasReviewed ? 'Update' : 'Submit',
+                      style: const TextStyle(fontSize: 16),
                     ),
                   ),
-                  child: const Text(
-                    'Submit',
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ),
+                  if (widget.hasReviewed)
+                    ElevatedButton(
+                      onPressed: _deleteReview,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                      ),
+                      child: const Text(
+                        'Delete',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ),
+                ],
               ),
             ],
           ),
