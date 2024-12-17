@@ -117,12 +117,16 @@ class _LoginPageState extends State<LoginPage> {
                         // Simpan nama dengan menggunakan FlutterSecureStorage
                         await storage.write(key: 'username', value: uname); 
                         await storage.write(key: 'id', value: response['id'].toString());
+                        // Simpan default admin ke false
+                        await storage.write(key: 'isAdmin', value: 'false');
 
                         // print("is_admin value: ${response['is_admin']}");
                         // print("Is Admin: $isAdmin");
 
                         if (context.mounted) {
                           if (isAdmin) {
+                            // Simpan status admin
+                            await storage.write(key: 'isAdmin', value: 'true');
                             // print(isAdmin);
                             // Jika admin, arahkan ke halaman list_product.dart
                             Navigator.pushReplacement(
