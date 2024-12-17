@@ -3,6 +3,7 @@ import 'package:angkringan_pedia/authentication/screens/login.dart';
 import 'package:angkringan_pedia/authentication/screens/register.dart';
 import 'package:angkringan_pedia/home/screens/home_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart'; // Assuming this is where CookieRequest is defined
 import 'package:provider/provider.dart';
 
@@ -52,7 +53,8 @@ class LeftDrawer extends StatelessWidget {
             onTap: () async {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const ListProfilePage()),
+                MaterialPageRoute(
+                    builder: (context) => const ListProfilePage()),
               );
             },
           ),
@@ -103,10 +105,17 @@ class LeftDrawer extends StatelessWidget {
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     content: Text("$message Sampai jumpa, $uname."),
                   ));
+                  final storage = FlutterSecureStorage();
+
+                  // Hapus semua data
+                  await storage.deleteAll();
+                  
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => const LoginPage()),
                   );
+
+
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
