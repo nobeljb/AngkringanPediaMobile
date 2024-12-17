@@ -1,4 +1,8 @@
+import 'package:angkringan_pedia/authentication/screens/login.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
 import '../theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -15,7 +19,7 @@ class _HeaderState extends State<Header> {
   final TextEditingController _searchController = TextEditingController();
   String _selectedFilter = 'none';
 
-  void _handleLogout(BuildContext context) {
+  Future<void> _handleLogout(BuildContext context) async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -25,21 +29,43 @@ class _HeaderState extends State<Header> {
           actions: [
             TextButton(
               child: const Text('Cancel'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+              onPressed: () => Navigator.of(context).pop(), // Close the dialog
             ),
             TextButton(
               child: const Text(
                 'Logout',
                 style: TextStyle(color: Colors.red),
               ),
-              onPressed: () {
-                // Navigate to login screen and clear navigation stack
-                Navigator.of(context).pushNamedAndRemoveUntil(
-                  '/login', // Make sure you have this route defined in your app
-                  (Route<dynamic> route) => false,
-                );
+              onPressed: () async {
+                Navigator.of(context).pop(); // Close the dialog
+                try {
+                  final request = context.read<CookieRequest>();
+                  final response = await request.logout(
+                      "http://127.0.0.1:8000/authentication/logout-flutter/");
+
+                  if (response['status']) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                            "${response['message']} Sampai jumpa, ${response['username']}."),
+                      ),
+                    );
+                    final storage = FlutterSecureStorage();
+
+                    // Hapus semua data
+                    await storage.deleteAll();
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const LoginPage()),
+                    );
+                  } else {
+                    _showErrorMessage(context, response["message"]);
+                  }
+                } catch (e) {
+                  _showErrorMessage(
+                      context, "Logout failed. Please try again.");
+                }
               },
             ),
           ],
@@ -48,8 +74,19 @@ class _HeaderState extends State<Header> {
     );
   }
 
+  void _showErrorMessage(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
+
     return Container(
       color: AppColors.darkOliveGreen,
       height: 70,
@@ -110,7 +147,8 @@ class _HeaderState extends State<Header> {
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.symmetric(vertical: 8),
                       ),
-                      onSubmitted: (value) => widget.onSearch(value, _selectedFilter),
+                      onSubmitted: (value) =>
+                          widget.onSearch(value, _selectedFilter),
                     ),
                   ),
                 ],

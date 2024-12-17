@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/recipe.dart';
 import '../theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:angkringan_pedia/home/screens/recipe_details.dart';
+import 'package:angkringan_pedia/foodcatalog/screens/recipe_details.dart';
 
 class RecipeCard extends StatelessWidget {
   final Recipe recipe;
