@@ -41,6 +41,8 @@ dependencies:
   pbp_django_auth: ^0.4.0
   image_picker: ^1.1.2
   dio: ^5.0.0  # Versi terbaru dio
+  flutter_rating_bar: ^4.0.1
+  flutter_secure_storage: ^9.2.2
 
 dev_dependencies:
   flutter_test:
