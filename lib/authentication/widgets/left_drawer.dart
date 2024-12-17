@@ -4,8 +4,10 @@ import 'package:angkringan_pedia/authentication/screens/register.dart';
 import 'package:angkringan_pedia/home/screens/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:pbp_django_auth/pbp_django_auth.dart'; // Assuming this is where CookieRequest is defined
+import 'package:pbp_django_auth/pbp_django_auth.dart'; // cookie request
 import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class LeftDrawer extends StatelessWidget {
   const LeftDrawer({super.key});
@@ -81,6 +83,56 @@ class LeftDrawer extends StatelessWidget {
             },
           ),
           ListTile(
+            leading: const Icon(Icons.delete),
+            title: const Text('Delete my account'),
+            onTap: () async {
+              final storage = FlutterSecureStorage(); // Inisialisasi storage
+
+              // Ambil id user dari FlutterSecureStorage
+              final id = await storage.read(key: 'id');
+              if (id == null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Error: User ID not found.')),
+                );
+                return; // Hentikan proses jika ID tidak ditemukan
+              }
+
+              final url =
+                  "http://127.0.0.1:8000/authentication/adminkudeleteflutter/$id";
+
+              try {
+                // Kirim request DELETE ke server
+                final response = await http.delete(Uri.parse(url));
+
+                if (response.statusCode == 200) {
+                  // Hapus data lokal (logout)
+                  await storage.deleteAll();
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Account deleted successfully.')),
+                  );
+
+                  // Arahkan user ke halaman login
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const LoginPage()),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                        content:
+                            Text('Failed to delete account: ${response.body}')),
+                  );
+                }
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Error: $e')),
+                );
+              }
+            },
+          ),
+          ListTile(
             leading: const Icon(Icons.add),
             title: const Text('Add new user'),
             // Handle the logout operation
@@ -109,13 +161,11 @@ class LeftDrawer extends StatelessWidget {
 
                   // Hapus semua data
                   await storage.deleteAll();
-                  
+
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => const LoginPage()),
                   );
-
-
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
