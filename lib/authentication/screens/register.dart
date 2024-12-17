@@ -1,10 +1,10 @@
-import 'package:dio/dio.dart'; // Pastikan dio sudah diimport
+import 'package:dio/dio.dart';
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:angkringan_pedia/authentication/screens/login.dart';
-import 'package:pbp_django_auth/pbp_django_auth.dart';
-import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:http_parser/http_parser.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -23,7 +23,7 @@ class _RegisterPageState extends State<RegisterPage> {
   XFile? _profileImage;
   bool _isAdmin = false; // Checkbox state for Register as Admin
 
-  final _picker = ImagePicker();
+  final ImagePicker _picker = ImagePicker();
 
   // Method untuk memilih image dari galeri
   Future<void> _pickImage() async {
@@ -34,9 +34,72 @@ class _RegisterPageState extends State<RegisterPage> {
     });
   }
 
+  Future<void> _registerUser() async {
+    final String username = _usernameController.text;
+    final String password1 = _passwordController.text;
+    final String password2 = _confirmPasswordController.text;
+    final String email = _emailController.text;
+    final String phone = _phoneController.text;
+    final String gender = _gender;
+
+    try {
+      final dio = Dio();
+
+      MultipartFile? profileImageFile;
+      if (_profileImage != null) {
+        final fileBytes = await _profileImage!.readAsBytes();
+        profileImageFile = MultipartFile.fromBytes(
+          fileBytes,
+          filename: _profileImage!.name,
+          contentType:
+              MediaType('image', 'jpeg'), // Update MIME type if necessary
+        );
+      }
+
+      final formData = FormData.fromMap({
+        'username': username,
+        'password1': password1,
+        'password2': password2,
+        'email': email,
+        'phone_number': phone,
+        'gender': gender,
+        'is_admin': _isAdmin.toString(),
+        if (profileImageFile != null) 'profile_image': profileImageFile,
+      });
+
+      final response = await dio.post(
+        "http://127.0.0.1:8000/authentication/register-flutter/",
+        data: formData,
+        options: Options(
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Successfully registered!')),
+        );
+        Navigator.pop(context);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Failed to register: ${response.data['message'] ?? 'Unknown error'}',
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final request = context.watch<CookieRequest>();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Register'),
@@ -167,94 +230,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                   const SizedBox(height: 24.0),
                   ElevatedButton(
-                    onPressed: () async {
-                      String username = _usernameController.text;
-                      String password1 = _passwordController.text;
-                      String password2 = _confirmPasswordController.text;
-                      String email = _emailController.text;
-                      String phone = _phoneController.text;
-                      String gender = _gender;
-
-                      // Cek kredensial
-                      // Kirim data ke backend Django
-                      final requestData = {
-                        "username": username,
-                        "password1": password1,
-                        "password2": password2,
-                        "email": email,
-                        "phone_number": phone,
-                        "gender": gender,
-                        "is_admin": _isAdmin, // Mengirimkan status Admin
-                        // Anda bisa mengirimkan file image jika ada
-                        "profile_image": _profileImage != null
-                            ? await MultipartFile.fromFile(_profileImage!.path)
-                            : null,
-                      };
-
-                      print(jsonEncode(requestData));
-
-                      // final response = await request.postJson(
-                      //   "http://127.0.0.1:8000/authentication/register-flutter/",
-                      //   jsonEncode(requestData),
-                      // );
-
-                      // if (response['status'] == 'success') {
-                      //   ScaffoldMessenger.of(context).showSnackBar(
-                      //     const SnackBar(
-                      //       content: Text('Successfully registered!'),
-                      //     ),
-                      //   );
-                      //   Navigator.pushReplacement(
-                      //     context,
-                      //     MaterialPageRoute(
-                      //       builder: (context) => const LoginPage(),
-                      //     ),
-                      //   );
-                      // } else {
-                      //   ScaffoldMessenger.of(context).showSnackBar(
-                      //     const SnackBar(
-                      //       content: Text('Failed to register!'),
-                      //     ),
-                      //   );
-                      // }
-                      final response = await request.postJson(
-                        "http://127.0.0.1:8000/authentication/register-flutter/",
-                        jsonEncode(requestData),
-                      );
-
-                      print('Response: ${response}');
-                      // if (response['status'] == 'success') {
-                      //   ScaffoldMessenger.of(context).showSnackBar(
-                      //     const SnackBar(
-                      //         content: Text('Successfully registered!')),
-                      //   );
-                      //   Navigator.pushReplacement(
-                      //     context,
-                      //     MaterialPageRoute(
-                      //         builder: (context) => const LoginPage()),
-                      //   );
-                      // } else {
-                      //   ScaffoldMessenger.of(context).showSnackBar(
-                      //     SnackBar(
-                      //         content: Text(
-                      //             'Failed to register: ${response['message']}')),
-                      //   );
-                      // }
-                      if (response['status'] == 'success') {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text('Successfully registered!')),
-                        );
-                        Navigator.pop(
-                            context); // This will take the user back to the previous page
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                              content: Text(
-                                  'Failed to register: ${response['message']}')),
-                        );
-                      }
-                    },
+                    onPressed: _registerUser,
                     child: const Text('Register'),
                   ),
                 ],

@@ -43,6 +43,7 @@ dependencies:
   dio: ^5.0.0  # Versi terbaru dio
   flutter_rating_bar: ^4.0.1
   flutter_secure_storage: ^9.2.2
+  http_parser: ^4.0.2
 
 dev_dependencies:
   flutter_test:
