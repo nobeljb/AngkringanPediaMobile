@@ -1,4 +1,3 @@
-import 'package:angkringan_pedia/home/models/recipe.dart';
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -15,6 +14,39 @@ class Header extends StatefulWidget {
 class _HeaderState extends State<Header> {
   final TextEditingController _searchController = TextEditingController();
   String _selectedFilter = 'none';
+
+  void _handleLogout(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Logout Confirmation'),
+          content: const Text('Are you sure you want to logout?'),
+          actions: [
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text(
+                'Logout',
+                style: TextStyle(color: Colors.red),
+              ),
+              onPressed: () {
+                // Navigate to login screen and clear navigation stack
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                  '/login', // Make sure you have this route defined in your app
+                  (Route<dynamic> route) => false,
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -132,6 +164,13 @@ class _HeaderState extends State<Header> {
             onPressed: () {},
             defaultColor: AppColors.honeydew,
             hoverColor: AppColors.sageGreen,
+          ),
+          // Logout Button
+          HoverIconButton(
+            icon: Icons.logout,
+            onPressed: () => _handleLogout(context),
+            defaultColor: AppColors.honeydew,
+            hoverColor: Colors.red[300]!,
           ),
         ],
       ),
