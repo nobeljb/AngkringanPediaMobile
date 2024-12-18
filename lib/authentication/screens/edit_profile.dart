@@ -2,9 +2,9 @@ import 'package:angkringan_pedia/authentication/models/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart'; // Menggunakan Dio untuk HTTP requests
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'dart:convert';
+import 'package:http_parser/http_parser.dart'; // Untuk tipe MIME
 
 class EditProfilePage extends StatefulWidget {
   final Profile profile;
@@ -19,7 +19,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  File? _profileImage;
+  XFile? _profileImage;
   final storage = const FlutterSecureStorage();
   String? _profileImageUrl;
 
@@ -40,46 +40,65 @@ class _EditProfilePageState extends State<EditProfilePage> {
     });
   }
 
+  final ImagePicker _picker = ImagePicker();
   Future<void> _pickImage() async {
-    final pickedFile =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _profileImage = File(pickedFile.path);
-      });
-    }
+    final XFile? pickedFile =
+        await _picker.pickImage(source: ImageSource.gallery);
+    setState(() {
+      _profileImage = pickedFile;
+    });
   }
 
   Future<void> _submitData() async {
     if (_formKey.currentState!.validate()) {
-      final uri = Uri.parse(
-          "http://127.0.0.1:8000/authentication/edit-user-flutter/${widget.profile.fields.user}/");
-      var request = http.MultipartRequest('POST', uri);
+      try {
+        final dio = Dio();
+        final url =
+            "http://127.0.0.1:8000/authentication/edit-user-flutter/${widget.profile.fields.user}/";
 
-      // Add form data
-      request.fields['username'] = _usernameController.text;
-      request.fields['email'] = _emailController.text;
-      request.fields['phone_number'] = _phoneNumberController.text;
+        FormData formData = FormData.fromMap({
+          'username': _usernameController.text,
+          'email': _emailController.text,
+          'phone_number': _phoneNumberController.text,
+        });
 
-      // Add image if selected
-      if (_profileImage != null) {
-        request.files.add(await http.MultipartFile.fromPath(
-          'profile_image',
-          _profileImage!.path,
-        ));
-      }
+        // Menambahkan gambar profil jika dipilih
+        if (_profileImage != null) {
+          final fileBytes = await _profileImage!.readAsBytes();
+          final profileImageFile = MultipartFile.fromBytes(
+            fileBytes,
+            filename: _profileImage!.name,
+            contentType:
+                MediaType('image', 'jpeg'), // Update MIME type if necessary
+          );
+          formData.files.add(MapEntry('profile_image', profileImageFile));
+        }
 
-      // Send request
-      final response = await request.send();
-
-      if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Profile updated successfully!")),
+        // Mengirim data ke server
+        final response = await dio.post(
+          url,
+          data: formData,
+          options: Options(
+            headers: {
+              'Authorization':
+                  'Bearer YOUR_ACCESS_TOKEN', // Tambahkan jika diperlukan
+            },
+          ),
         );
-        Navigator.pop(context);
-      } else {
+
+        if (response.statusCode == 200) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Profile updated successfully!")),
+          );
+          Navigator.pop(context);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Failed to update profile.")),
+          );
+        }
+      } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Failed to update profile.")),
+          SnackBar(content: Text("Error: $e")),
         );
       }
     }
@@ -105,11 +124,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   child: CircleAvatar(
                     radius: 60,
                     backgroundImage: _profileImage != null
-                        ? FileImage(_profileImage!)
+                        ? FileImage(File(_profileImage!.path))
                         : (_profileImageUrl != null
-                            ? NetworkImage(_profileImageUrl!)
-                            : const AssetImage('assets/images/user.png'))
-                                as ImageProvider,
+                                ? NetworkImage(_profileImageUrl!)
+                                : const AssetImage('assets/images/user.png'))
+                            as ImageProvider,
                     child: _profileImage == null && _profileImageUrl == null
                         ? const Icon(Icons.camera_alt, size: 40)
                         : null,
@@ -131,8 +150,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
               TextFormField(
                 controller: _emailController,
                 decoration: const InputDecoration(labelText: 'Email'),
-                validator: (value) =>
-                    value!.isEmpty ? 'Please enter an email' : null,
+                validator: (value) => value!.isEmpty
+                    ? 'Please enter an email'
+                    : !RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
+                            .hasMatch(value)
+                        ? 'Please enter a valid email address'
+                        : null,
               ),
               const SizedBox(height: 10),
 
