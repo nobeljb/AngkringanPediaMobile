@@ -1,3 +1,4 @@
+import 'package:angkringan_pedia/authentication/models/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -6,29 +7,39 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:convert';
 
 class EditProfilePage extends StatefulWidget {
-  const EditProfilePage({super.key});
+  final Profile profile;
+  const EditProfilePage({Key? key, required this.profile}) : super(key: key);
 
   @override
   State<EditProfilePage> createState() => _EditProfilePageState();
 }
 
 class _EditProfilePageState extends State<EditProfilePage> {
-  // Controllers for the form fields
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
-
-  final _formKey = GlobalKey<FormState>(); // Form key for validation
-  File? _profileImage; // Image file for profile image
-  final storage = FlutterSecureStorage(); // Secure storage instance
+  final _formKey = GlobalKey<FormState>();
+  File? _profileImage;
+  final storage = const FlutterSecureStorage();
+  String? _profileImageUrl;
 
   @override
   void initState() {
     super.initState();
-    fetchUserData(); // Fetch user data when the page loads
+    _loadInitialData();
   }
 
-  // Function to pick image from gallery
+  Future<void> _loadInitialData() async {
+    _usernameController.text = widget.profile.fields.username;
+    _emailController.text = widget.profile.fields.email;
+    _phoneNumberController.text = widget.profile.fields.phoneNumber;
+    setState(() {
+      _profileImageUrl = widget.profile.fields.profileImage != null
+          ? "http://127.0.0.1:8000/${widget.profile.fields.profileImage}"
+          : null;
+    });
+  }
+
   Future<void> _pickImage() async {
     final pickedFile =
         await ImagePicker().pickImage(source: ImageSource.gallery);
@@ -39,66 +50,37 @@ class _EditProfilePageState extends State<EditProfilePage> {
     }
   }
 
-  // Function to fetch user data from server
-  Future<void> fetchUserData() async {
-    final id = await storage.read(key: 'id'); // Get user ID from secure storage
-    // final id = await storage.read(key: 'id');
-    if (id == null) {
-      print("Error: User ID not found in secure storage");
-      return;
-    } else {
-      print("id: $id");
-    }
-
-    final response = await http
-        .get(Uri.parse("http://127.0.0.1:8000/authentication/user-detail/$id"));
-
-    // final response = await http
-    //     .get(Uri.parse("http://127.0.0.1:8000/authentication/user-detail/$id"));
-    // print("Response status: ${response.statusCode}");
-    // print("Response body: ${response.body}");
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      setState(() {
-        _usernameController.text = data['username'];
-        _emailController.text = data['email'];
-        _phoneNumberController.text = data['phone_number'];
-      });
-    } else {
-      // print("Failed to fetch user data: ${response.body}");
-    }
-  }
-
-  // Function to submit updated user data
-  Future<void> submitData() async {
+  Future<void> _submitData() async {
     if (_formKey.currentState!.validate()) {
-      final id = await storage.read(key: 'id'); // Get user ID
       final uri = Uri.parse(
-          "http://127.0.0.1:8000/authentication/edit-user-flutter/$id");
-
+          "http://127.0.0.1:8000/authentication/edit-user-flutter/${widget.profile.fields.user}/");
       var request = http.MultipartRequest('POST', uri);
 
-      // Add text fields
+      // Add form data
       request.fields['username'] = _usernameController.text;
       request.fields['email'] = _emailController.text;
       request.fields['phone_number'] = _phoneNumberController.text;
 
-      // Add profile image if picked
+      // Add image if selected
       if (_profileImage != null) {
         request.files.add(await http.MultipartFile.fromPath(
-            'profile_image', _profileImage!.path));
+          'profile_image',
+          _profileImage!.path,
+        ));
       }
 
+      // Send request
       final response = await request.send();
 
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Profile updated successfully!")),
         );
-        Navigator.pop(context); // Navigate back after success
+        Navigator.pop(context);
       } else {
-        print("Failed to update profile");
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Failed to update profile.")),
+        );
       }
     }
   }
@@ -124,9 +106,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     radius: 60,
                     backgroundImage: _profileImage != null
                         ? FileImage(_profileImage!)
-                        : const AssetImage('assets/images/user.png')
-                            as ImageProvider,
-                    child: _profileImage == null
+                        : (_profileImageUrl != null
+                            ? NetworkImage(_profileImageUrl!)
+                            : const AssetImage('assets/images/user.png'))
+                                as ImageProvider,
+                    child: _profileImage == null && _profileImageUrl == null
                         ? const Icon(Icons.camera_alt, size: 40)
                         : null,
                   ),
@@ -165,7 +149,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: submitData,
+                  onPressed: _submitData,
                   child: const Text('Save Changes'),
                 ),
               ),
