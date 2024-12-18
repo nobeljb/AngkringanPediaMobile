@@ -66,7 +66,7 @@ class ProfileDetailPage extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => Placeholder(),
+                        builder: (context) => EditProfilePage(),
                       ),
                     );
                   },

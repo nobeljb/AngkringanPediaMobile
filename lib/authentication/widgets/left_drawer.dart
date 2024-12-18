@@ -1,3 +1,4 @@
+import 'package:angkringan_pedia/authentication/screens/edit_profile.dart';
 import 'package:angkringan_pedia/authentication/screens/list_profile.dart';
 import 'package:angkringan_pedia/authentication/screens/login.dart';
 import 'package:angkringan_pedia/authentication/screens/register.dart';
@@ -78,7 +79,7 @@ class LeftDrawer extends StatelessWidget {
             onTap: () async {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const Placeholder()),
+                MaterialPageRoute(builder: (context) => const EditProfilePage()),
               );
             },
           ),
