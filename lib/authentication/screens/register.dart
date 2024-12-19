@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:angkringan_pedia/authentication/screens/login.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http_parser/http_parser.dart';
 
@@ -51,8 +52,7 @@ class _RegisterPageState extends State<RegisterPage> {
         profileImageFile = MultipartFile.fromBytes(
           fileBytes,
           filename: _profileImage!.name,
-          contentType:
-              MediaType('image', 'jpeg'),
+          contentType: MediaType('image', 'jpeg'),
         );
       }
 
@@ -108,6 +108,12 @@ class _RegisterPageState extends State<RegisterPage> {
           onPressed: () {
             Navigator.pop(context);
           },
+          // style: ElevatedButton.styleFrom(
+          //   foregroundColor: Colors.white,
+          //   minimumSize: Size(double.infinity, 50),
+          //   backgroundColor: Theme.of(context).colorScheme.primary,
+          //   padding: const EdgeInsets.symmetric(vertical: 16.0),
+          // ),
         ),
       ),
       body: Center(
@@ -130,6 +136,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+
                   const SizedBox(height: 30.0),
                   TextFormField(
                     controller: _usernameController,
@@ -140,7 +147,12 @@ class _RegisterPageState extends State<RegisterPage> {
                         borderRadius: BorderRadius.all(Radius.circular(12.0)),
                       ),
                     ),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                          RegExp(r'[a-z0-9]')), // Hanya huruf kecil dan angka
+                    ],
                   ),
+
                   const SizedBox(height: 12.0),
                   TextFormField(
                     controller: _passwordController,
@@ -153,6 +165,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                     ),
                   ),
+
                   const SizedBox(height: 12.0),
                   TextFormField(
                     controller: _confirmPasswordController,
@@ -165,6 +178,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                     ),
                   ),
+
                   const SizedBox(height: 12.0),
                   TextFormField(
                     controller: _emailController,
@@ -176,6 +190,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                     ),
                   ),
+
                   const SizedBox(height: 12.0),
                   TextFormField(
                     controller: _phoneController,
@@ -186,7 +201,24 @@ class _RegisterPageState extends State<RegisterPage> {
                         borderRadius: BorderRadius.all(Radius.circular(12.0)),
                       ),
                     ),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                          RegExp(r'[0-9]')), // Hanya huruf kecil dan angka
+                    ],
+                    // validator: (value) {
+                    //   if (value == null || value.isEmpty) {
+                    //     return 'Please enter a phone number';
+                    //   }
+                    //   // Validasi untuk format nomor telepon
+                    //   final phoneRegExp = RegExp(
+                    //       r'^[0-9]{10,15}$'); // Hanya angka, panjang 10-15 digit
+                    //   if (!phoneRegExp.hasMatch(value)) {
+                    //     return 'Please enter a valid phone number';
+                    //   }
+                    //   return null;
+                    // },
                   ),
+
                   const SizedBox(height: 12.0),
                   DropdownButtonFormField<String>(
                     value: _gender,
@@ -212,6 +244,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                     ),
                   ),
+
                   const SizedBox(height: 12.0),
                   CheckboxListTile(
                     title: const Text('Register as Admin'),
@@ -223,10 +256,39 @@ class _RegisterPageState extends State<RegisterPage> {
                     },
                     controlAffinity: ListTileControlAffinity.leading,
                   ),
+
+                  // const SizedBox(height: 12.0),
+                  // ElevatedButton(
+                  //   onPressed: _pickImage,
+                  //   style: ElevatedButton.styleFrom(
+                  //     foregroundColor: Colors.white,
+                  //     minimumSize: Size(double.infinity, 50),
+                  //     backgroundColor: Theme.of(context).colorScheme.primary,
+                  //     padding: const EdgeInsets.symmetric(vertical: 16.0),
+                  //   ),
+                  //   child: const Text('Pick Profile Image'),
+                  // ),
+                  // if (_profileImage != null)
+                  //   Center(
+                  //     child: Text(
+                  //       'Image selected: ${_profileImage!.name}',
+                  //       style: const TextStyle(color: Colors.green),
+                  //     ),
+                  //   ),
+
                   const SizedBox(height: 12.0),
-                  ElevatedButton(
+                  ElevatedButton.icon(
                     onPressed: _pickImage,
-                    child: const Text('Pick Profile Image'),
+                    icon: const Icon(Icons.photo_library,
+                        color: Colors.white), // Ikon putih
+                    label: const Text('Pick Profile Image',
+                        style: TextStyle(color: Colors.white)), // Teks putih
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      minimumSize: Size(double.infinity, 50),
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      padding: const EdgeInsets.symmetric(vertical: 16.0),
+                    ),
                   ),
                   if (_profileImage != null)
                     Center(
@@ -235,9 +297,78 @@ class _RegisterPageState extends State<RegisterPage> {
                         style: const TextStyle(color: Colors.green),
                       ),
                     ),
+
                   const SizedBox(height: 24.0),
                   ElevatedButton(
-                    onPressed: _registerUser,
+                    onPressed: () {
+                      // Validasi empty field
+                      if (_usernameController.text.isEmpty ||
+                          _passwordController.text.isEmpty ||
+                          _confirmPasswordController.text.isEmpty ||
+                          _emailController.text.isEmpty ||
+                          _phoneController.text.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('Field cannot be empty.')),
+                        );
+                        return;
+                      }
+
+                      // Validasi email format
+                      final emailRegex = RegExp(
+                          r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$");
+                      if (!emailRegex.hasMatch(_emailController.text)) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content:
+                                  Text('Please enter a valid email address.')),
+                        );
+                        return;
+                      }
+
+                      // Validasi phone number
+                      final phoneRegex = RegExp(
+                          r'^[0-9]{10,15}$'); // Hanya angka, panjang 10-15 digit
+                      if (!phoneRegex.hasMatch(_phoneController.text)) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content:
+                                  Text('Please enter a valid phone number.')),
+                        );
+                        return;
+                      }
+
+                      // Validasi password
+                      if (_passwordController.text !=
+                          _confirmPasswordController.text) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('Password doesn\'t match.')),
+                        );
+                        return;
+                      }
+
+                      // Validasi Admin
+                      if (_isAdmin &&
+                          (_passwordController.text != 'kadalganteng' ||
+                              _confirmPasswordController.text !=
+                                  'kadalganteng')) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('Invalid Admin password.')),
+                        );
+                        return;
+                      }
+
+                      // Panggil fungsi registrasi user jika validasi lolos
+                      _registerUser();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      minimumSize: Size(double.infinity, 50),
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      padding: const EdgeInsets.symmetric(vertical: 16.0),
+                    ),
                     child: const Text('Register'),
                   ),
                 ],

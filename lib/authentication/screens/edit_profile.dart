@@ -1,6 +1,228 @@
+// import 'package:angkringan_pedia/authentication/models/profile.dart';
+// import 'package:angkringan_pedia/authentication/screens/list_profile.dart';
+// import 'package:flutter/material.dart';
+// import 'package:flutter/services.dart';
+// import 'package:image_picker/image_picker.dart';
+// import 'package:dio/dio.dart';
+// import 'package:http_parser/http_parser.dart';
+
+// class EditProfilePage extends StatefulWidget {
+//   final Profile profile;
+//   const EditProfilePage({Key? key, required this.profile}) : super(key: key);
+
+//   @override
+//   State<EditProfilePage> createState() => _EditProfilePageState();
+// }
+
+// class _EditProfilePageState extends State<EditProfilePage> {
+//   final TextEditingController _usernameController = TextEditingController();
+//   final TextEditingController _emailController = TextEditingController();
+//   final TextEditingController _phoneNumberController = TextEditingController();
+//   final _formKey = GlobalKey<FormState>();
+//   XFile? _profileImage;
+//   bool _deleteProfileImage = false; 
+//   final ImagePicker _picker = ImagePicker();
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     _loadInitialData();
+//   }
+
+//   Future<void> _loadInitialData() async {
+//     _usernameController.text = widget.profile.fields.username;
+//     _emailController.text = widget.profile.fields.email;
+//     _phoneNumberController.text = widget.profile.fields.phoneNumber;
+//   }
+
+//   Future<void> _pickImage() async {
+//     final XFile? pickedFile =
+//         await _picker.pickImage(source: ImageSource.gallery);
+//     setState(() {
+//       _profileImage = pickedFile;
+//       if (pickedFile != null)
+//         _deleteProfileImage = false; // Jika pilih gambar, nonaktifkan delete
+//     });
+//   }
+
+//   Future<void> _submitData() async {
+//     if (_formKey.currentState!.validate()) {
+//       try {
+//         final dio = Dio();
+//         final url =
+//             "http://127.0.0.1:8000/authentication/edit-user-flutter/${widget.profile.fields.user}/";
+
+//         FormData formData = FormData.fromMap({
+//           'username': _usernameController.text,
+//           'email': _emailController.text,
+//           'phone_number': _phoneNumberController.text,
+//           'delete_profile_image': _deleteProfileImage ? 'true' : 'false',
+//         });
+
+//         // menambahkan gambar profil jika dipilih
+//         if (_profileImage != null && !_deleteProfileImage) {
+//           final fileBytes = await _profileImage!.readAsBytes();
+//           final profileImageFile = MultipartFile.fromBytes(
+//             fileBytes,
+//             filename: _profileImage!.name,
+//             contentType: MediaType('image', 'jpeg'),
+//           );
+//           formData.files.add(MapEntry('profile_image', profileImageFile));
+//         }
+
+//         final response = await dio.post(url, data: formData);
+
+//         if (response.statusCode == 200) {
+//           ScaffoldMessenger.of(context).showSnackBar(
+//             const SnackBar(content: Text("Profile updated successfully!")),
+//           );
+
+//           Navigator.pushReplacement(
+//             context,
+//             MaterialPageRoute(builder: (context) => ListProfilePage()),
+//           );
+//         } else {
+//           final errorMessage =
+//               response.data['message'] ?? 'Failed to update profile.';
+//           ScaffoldMessenger.of(context).showSnackBar(
+//             SnackBar(content: Text("Error: $errorMessage")),
+//           );
+//         }
+//       } catch (e) {
+//         ScaffoldMessenger.of(context).showSnackBar(
+//           SnackBar(content: Text("Error: $e")),
+//         );
+//       }
+//     }
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: const Text('Edit Profile'),
+//       ),
+//       body: SingleChildScrollView(
+//         padding: const EdgeInsets.all(16.0),
+//         child: Form(
+//           key: _formKey,
+//           child: Column(
+//             children: [
+
+//               // username
+//               TextFormField(
+//                 controller: _usernameController,
+//                 decoration: const InputDecoration(labelText: 'Username'),
+
+//                 inputFormatters: [
+//                   FilteringTextInputFormatter.allow(
+//                       RegExp(r'[a-z0-9]')), // Hanya huruf kecil dan angka
+//                 ],
+//               ),
+//               const SizedBox(height: 10),
+
+//               // email
+//               TextFormField(
+//                 controller: _emailController,
+//                 decoration: const InputDecoration(labelText: 'Email'),
+//               ),
+//               const SizedBox(height: 10),
+
+//               // Phone Number
+//               TextFormField(
+//                 controller: _phoneNumberController,
+//                 decoration: const InputDecoration(labelText: 'Phone Number'),
+
+//                 inputFormatters: [
+//                   FilteringTextInputFormatter.allow(
+//                       RegExp(r'[0-9]')), // Hanya huruf kecil dan angka
+//                 ],
+//               ),
+//               const SizedBox(height: 10),
+
+//               // Delete Profile image
+//               CheckboxListTile(
+//                 title: const Text('Delete Profile Image'),
+//                 value: _deleteProfileImage,
+//                 onChanged: (value) {
+//                   setState(() {
+//                     _deleteProfileImage = value!;
+//                     if (_deleteProfileImage) _profileImage = null;
+//                   });
+//                 },
+//               ),
+
+//               // pick new profpic
+//               ElevatedButton(
+//                 onPressed: _pickImage,
+//                 child: const Text('Pick New Profile Image'),
+//               ),
+//               if (_profileImage != null)
+//                 Center(
+//                   child: Text(
+//                     'Image selected: ${_profileImage!.name}',
+//                     style: const TextStyle(color: Colors.green),
+//                   ),
+//                 ),
+//               const SizedBox(height: 20),
+
+//               ElevatedButton(
+//                 onPressed: () {
+//                   // Validasi empty field
+//                   if (_usernameController.text.isEmpty ||
+//                       _emailController.text.isEmpty ||
+//                       _phoneNumberController.text.isEmpty) {
+//                     ScaffoldMessenger.of(context).showSnackBar(
+//                       const SnackBar(content: Text('Field cannot be empty.')),
+//                     );
+//                     return;
+//                   }
+
+//                   // Validasi email format
+//                   final emailRegex = RegExp(
+//                       r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$");
+//                   if (!emailRegex.hasMatch(_emailController.text)) {
+//                     ScaffoldMessenger.of(context).showSnackBar(
+//                       const SnackBar(
+//                           content: Text('Please enter a valid email address.')),
+//                     );
+//                     return;
+//                   }
+
+//                   // Validasi phone number
+//                   final phoneRegex = RegExp(
+//                       r'^[0-9]{10,15}$'); // Hanya angka, panjang 10-15 digit
+//                   if (!phoneRegex.hasMatch(_phoneNumberController.text)) {
+//                     ScaffoldMessenger.of(context).showSnackBar(
+//                       const SnackBar(
+//                           content: Text('Please enter a valid phone number.')),
+//                     );
+//                     return;
+//                   }
+
+//                   // Panggil fungsi registrasi user jika validasi lolos
+//                   _submitData();
+//                 },
+//                 style: ElevatedButton.styleFrom(
+//                   foregroundColor: Colors.white,
+//                   minimumSize: Size(double.infinity, 50),
+//                   backgroundColor: Theme.of(context).colorScheme.primary,
+//                   padding: const EdgeInsets.symmetric(vertical: 16.0),
+//                 ),
+//                 child: const Text('Save Changes'),
+//               ),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
+
 import 'package:angkringan_pedia/authentication/models/profile.dart';
 import 'package:angkringan_pedia/authentication/screens/list_profile.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:dio/dio.dart';
 import 'package:http_parser/http_parser.dart';
@@ -19,7 +241,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   final TextEditingController _phoneNumberController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   XFile? _profileImage;
-  bool _deleteProfileImage = false; // Tambahkan ini
+  bool _deleteProfileImage = false;
   final ImagePicker _picker = ImagePicker();
 
   @override
@@ -40,7 +262,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     setState(() {
       _profileImage = pickedFile;
       if (pickedFile != null)
-        _deleteProfileImage = false; // Jika pilih gambar, nonaktifkan delete
+        _deleteProfileImage = false; // Nonaktifkan delete jika ada gambar
     });
   }
 
@@ -58,7 +280,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
           'delete_profile_image': _deleteProfileImage ? 'true' : 'false',
         });
 
-        // menambahkan gambar profil jika dipilih
         if (_profileImage != null && !_deleteProfileImage) {
           final fileBytes = await _profileImage!.readAsBytes();
           final profileImageFile = MultipartFile.fromBytes(
@@ -100,46 +321,79 @@ class _EditProfilePageState extends State<EditProfilePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit Profile'),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        iconTheme: const IconThemeData(color: Colors.white), // Panah kembali putih
+        titleTextStyle: TextStyle(
+          color: Colors.white, // Teks "Edit Profile" putih
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: Column(
-            // crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // username
+
+              // Username
               TextFormField(
                 controller: _usernameController,
-                decoration: const InputDecoration(labelText: 'Username'),
-                validator: (value) =>
-                    value!.isEmpty ? 'Please enter a username' : null,
+                decoration: InputDecoration(
+                  labelText: 'Username',
+                  labelStyle: TextStyle(color: Theme.of(context).colorScheme.primary),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(
+                      RegExp(r'[a-z0-9]')), // Hanya huruf kecil dan angka
+                ],
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 16),
 
-              // email
+              // Email
               TextFormField(
                 controller: _emailController,
-                decoration: const InputDecoration(labelText: 'Email'),
-                validator: (value) => value!.isEmpty
-                    ? 'Please enter an email'
-                    : !RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
-                            .hasMatch(value)
-                        ? 'Please enter a valid email address'
-                        : null,
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  labelStyle: TextStyle(color: Theme.of(context).colorScheme.primary),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 16),
 
               // Phone Number
               TextFormField(
                 controller: _phoneNumberController,
-                decoration: const InputDecoration(labelText: 'Phone Number'),
-                validator: (value) =>
-                    value!.isEmpty ? 'Please enter a phone number' : null,
+                decoration: InputDecoration(
+                  labelText: 'Phone Number',
+                  labelStyle: TextStyle(color: Theme.of(context).colorScheme.primary),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(
+                      RegExp(r'[0-9]')), // Hanya angka
+                ],
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 16),
 
-              // Delete Profile image
+              // Delete Profile Image Checkbox
               CheckboxListTile(
                 title: const Text('Delete Profile Image'),
                 value: _deleteProfileImage,
@@ -149,12 +403,23 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     if (_deleteProfileImage) _profileImage = null;
                   });
                 },
+                controlAffinity: ListTileControlAffinity.leading,
+                activeColor: Theme.of(context).colorScheme.primary,
               ),
 
-              // pick new profpic
-              ElevatedButton(
+              // Pick New Profile Image Button
+              ElevatedButton.icon(
                 onPressed: _pickImage,
-                child: const Text('Pick New Profile Image'),
+                icon: const Icon(Icons.photo_library, color: Colors.white), // Ikon putih
+                label: const Text(
+                  'Pick New Profile Image',
+                  style: TextStyle(color: Colors.white), // Teks putih
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  minimumSize: Size(double.infinity, 48),
+                ),
               ),
               if (_profileImage != null)
                 Center(
@@ -163,13 +428,47 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     style: const TextStyle(color: Colors.green),
                   ),
                 ),
-              // if (_profileImage != null)
-              //   Text('Selected Image: ${_profileImage!.name}'),
               const SizedBox(height: 20),
 
-              // submit button
+              // Save Changes Button
               ElevatedButton(
-                onPressed: _submitData,
+                onPressed: () {
+                  if (_usernameController.text.isEmpty ||
+                      _emailController.text.isEmpty ||
+                      _phoneNumberController.text.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Field cannot be empty.')),
+                    );
+                    return;
+                  }
+
+                  final emailRegex = RegExp(
+                      r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$");
+                  if (!emailRegex.hasMatch(_emailController.text)) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text('Please enter a valid email address.')),
+                    );
+                    return;
+                  }
+
+                  final phoneRegex = RegExp(r'^[0-9]{10,15}$');
+                  if (!phoneRegex.hasMatch(_phoneNumberController.text)) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text('Please enter a valid phone number.')),
+                    );
+                    return;
+                  }
+
+                  _submitData();
+                },
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  minimumSize: Size(double.infinity, 50),
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                ),
                 child: const Text('Save Changes'),
               ),
             ],
@@ -179,3 +478,4 @@ class _EditProfilePageState extends State<EditProfilePage> {
     );
   }
 }
+
