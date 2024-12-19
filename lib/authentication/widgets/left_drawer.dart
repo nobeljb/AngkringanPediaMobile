@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:angkringan_pedia/authentication/models/profile.dart';
 import 'package:angkringan_pedia/authentication/screens/edit_profile.dart';
 import 'package:angkringan_pedia/authentication/screens/list_profile.dart';
 import 'package:angkringan_pedia/authentication/screens/login.dart';
@@ -77,10 +80,36 @@ class LeftDrawer extends StatelessWidget {
             title: const Text('Edit my profile'),
             // Handle the logout operation
             onTap: () async {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const Placeholder()),
-              );
+              final storage = FlutterSecureStorage();
+
+              // Ambil user ID dari storage
+              final userId = await storage.read(key: 'id');
+              print("user Id $userId");
+
+
+              // Ambil profil user dari backend
+              final response = await http.get(Uri.parse(
+                  'http://127.0.0.1:8000/authentication/user-detail/$userId'));
+
+              if (response.statusCode == 200) {
+                final profileData = jsonDecode(response.body);
+
+                // print("-------");
+                // print(profileData);
+                // print("********");
+
+                // Buat objek Profile dari response
+                final userProfile = Profile.fromJson(profileData);
+
+                // print(userProfile.toJson());
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EditProfilePage(profile: userProfile),
+                  ),
+                );
+              }
             },
           ),
           ListTile(
