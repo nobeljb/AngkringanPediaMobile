@@ -1,7 +1,9 @@
 import 'package:angkringan_pedia/authentication/models/profile.dart';
+import 'package:angkringan_pedia/authentication/screens/list_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'profile_detail.dart';
 import 'package:dio/dio.dart'; // Menggunakan Dio untuk HTTP requests
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http_parser/http_parser.dart'; // Untuk tipe MIME
@@ -21,7 +23,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
   final _formKey = GlobalKey<FormState>();
   XFile? _profileImage;
   final storage = const FlutterSecureStorage();
-  String? _profileImageUrl;
 
   @override
   void initState() {
@@ -33,11 +34,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
     _usernameController.text = widget.profile.fields.username;
     _emailController.text = widget.profile.fields.email;
     _phoneNumberController.text = widget.profile.fields.phoneNumber;
-    setState(() {
-      _profileImageUrl = widget.profile.fields.profileImage != null
-          ? "http://127.0.0.1:8000/${widget.profile.fields.profileImage}"
-          : null;
-    });
   }
 
   final ImagePicker _picker = ImagePicker();
@@ -74,23 +70,36 @@ class _EditProfilePageState extends State<EditProfilePage> {
           formData.files.add(MapEntry('profile_image', profileImageFile));
         }
 
+        // // Mengirim data ke server
+        // final response = await dio.post(
+        //   url,
+        //   data: formData,
+        //   options: Options(
+        //     headers: {
+        //       'Authorization':
+        //           'Bearer YOUR_ACCESS_TOKEN', // Tambahkan jika diperlukan
+        //     },
+        //   ),
+        // );
+
         // Mengirim data ke server
         final response = await dio.post(
           url,
           data: formData,
-          options: Options(
-            headers: {
-              'Authorization':
-                  'Bearer YOUR_ACCESS_TOKEN', // Tambahkan jika diperlukan
-            },
-          ),
         );
 
         if (response.statusCode == 200) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("Profile updated successfully!")),
           );
-          Navigator.pop(context);
+          // Navigator.pop(context);
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ListProfilePage(),
+            ),
+          );
+
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("Failed to update profile.")),
@@ -117,24 +126,20 @@ class _EditProfilePageState extends State<EditProfilePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Profile Image
+              // Pick Profile Image Button
               Center(
-                child: GestureDetector(
-                  onTap: _pickImage,
-                  child: CircleAvatar(
-                    radius: 60,
-                    backgroundImage: _profileImage != null
-                        ? FileImage(File(_profileImage!.path))
-                        : (_profileImageUrl != null
-                                ? NetworkImage(_profileImageUrl!)
-                                : const AssetImage('assets/images/user.png'))
-                            as ImageProvider,
-                    child: _profileImage == null && _profileImageUrl == null
-                        ? const Icon(Icons.camera_alt, size: 40)
-                        : null,
-                  ),
+                child: ElevatedButton(
+                  onPressed: _pickImage,
+                  child: const Text('Pick Profile Image'),
                 ),
               ),
+              if (_profileImage != null)
+                Center(
+                  child: Text(
+                    'Image selected: ${_profileImage!.name}',
+                    style: const TextStyle(color: Colors.green),
+                  ),
+                ),
               const SizedBox(height: 20),
 
               // Username

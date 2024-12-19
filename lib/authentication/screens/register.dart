@@ -228,6 +228,13 @@ class _RegisterPageState extends State<RegisterPage> {
                     onPressed: _pickImage,
                     child: const Text('Pick Profile Image'),
                   ),
+                  if (_profileImage != null)
+                    Center(
+                      child: Text(
+                        'Image selected: ${_profileImage!.name}',
+                        style: const TextStyle(color: Colors.green),
+                      ),
+                    ),
                   const SizedBox(height: 24.0),
                   ElevatedButton(
                     onPressed: _registerUser,
