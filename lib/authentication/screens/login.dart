@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:angkringan_pedia/home/screens/home_page.dart';
-import 'package:angkringan_pedia/home/theme/app_theme.dart'; // Import AppTheme
+import 'package:angkringan_pedia/home/theme/app_theme.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 void main() {
@@ -19,7 +19,7 @@ class LoginApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Angkringan Pedia',
-      theme: AppTheme.theme, // Gunakan tema dari AppTheme
+      theme: AppTheme.theme,
       home: const LoginPage(),
     );
   }
@@ -112,23 +112,18 @@ class _LoginPageState extends State<LoginPage> {
                       if (request.loggedIn) {
                         String message = response['message'];
                         String uname = response['username'];
-                        bool isAdmin = response['is_admin']; // Periksa apakah admin
+                        bool isAdmin = response['is_admin'];
 
                         // Simpan nama dengan menggunakan FlutterSecureStorage
                         await storage.write(key: 'username', value: uname); 
                         await storage.write(key: 'id', value: response['id'].toString());
-                        // Simpan default admin ke false
                         await storage.write(key: 'isAdmin', value: 'false');
-
-                        // print("is_admin value: ${response['is_admin']}");
-                        // print("Is Admin: $isAdmin");
 
                         if (context.mounted) {
                           if (isAdmin) {
                             // Simpan status admin
                             await storage.write(key: 'isAdmin', value: 'true');
-                            // print(isAdmin);
-                            // Jika admin, arahkan ke halaman list_product.dart
+                            // Jika admin, arahkan ke halaman list_profile.dart
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(

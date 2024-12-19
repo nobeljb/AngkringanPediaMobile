@@ -27,18 +27,10 @@ class _ListProfilePageState extends State<ListProfilePage> {
     final String? idString = await storage.read(key: 'id');
     final int? userId = idString != null ? int.tryParse(idString) : null;
 
-    // print("user id: $userId");
-
-    // if (userId == null) {
-    //   print('Error: User ID not found or invalid.');
-    //   return profiles; // Kembalikan daftar kosong jika ID tidak ditemukan
-    // }
-
-    // Iterasi data JSON dan tambahkan profil yang bukan milik user
+    // Iterasi data JSON dan tambahkan profil yang bukan milik admin yang sdg login
     for (var data in response) {
       final profile = Profile.fromJson(data);
       if (profile.fields.user != userId) {
-        // print("profile.pk ${profile.pk}");
         profiles.add(profile);
       }
     }

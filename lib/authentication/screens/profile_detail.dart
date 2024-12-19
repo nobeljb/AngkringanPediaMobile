@@ -36,21 +36,25 @@ class ProfileDetailPage extends StatelessWidget {
               style: const TextStyle(fontSize: 18),
             ),
             const SizedBox(height: 8),
+
             Text(
               "Email: ${profile.fields.email}",
               style: const TextStyle(fontSize: 18),
             ),
             const SizedBox(height: 8),
+
             Text(
               "Phone Number: ${profile.fields.phoneNumber}",
               style: const TextStyle(fontSize: 18),
             ),
             const SizedBox(height: 8),
+
             Text(
-              "Gender: ${profile.fields.gender}",
+              "Gender: ${profile.fields.gender == 'F' ? 'Female' : 'Male'}",
               style: const TextStyle(fontSize: 18),
             ),
             const SizedBox(height: 8),
+
             Text(
               "Role: ${profile.fields.isAdmin}",
               style: const TextStyle(fontSize: 18),
@@ -85,7 +89,8 @@ class ProfileDetailPage extends StatelessWidget {
 
                     if (response.statusCode == 200) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("User deleted successfully!")),
+                        const SnackBar(
+                            content: Text("User deleted successfully!")),
                       );
                       Navigator.pushReplacement(
                         context,

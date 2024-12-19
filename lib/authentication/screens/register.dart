@@ -21,7 +21,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final _phoneController = TextEditingController();
   String _gender = 'M'; // Default gender
   XFile? _profileImage;
-  bool _isAdmin = false; // Checkbox state for Register as Admin
+  bool _isAdmin = false;
 
   final ImagePicker _picker = ImagePicker();
 
@@ -52,7 +52,7 @@ class _RegisterPageState extends State<RegisterPage> {
           fileBytes,
           filename: _profileImage!.name,
           contentType:
-              MediaType('image', 'jpeg'), // Update MIME type if necessary
+              MediaType('image', 'jpeg'),
         );
       }
 

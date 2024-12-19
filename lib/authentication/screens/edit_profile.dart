@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'profile_detail.dart';
-import 'package:dio/dio.dart'; // Menggunakan Dio untuk HTTP requests
+import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:http_parser/http_parser.dart'; // Untuk tipe MIME
+import 'package:http_parser/http_parser.dart';
 
 class EditProfilePage extends StatefulWidget {
   final Profile profile;
@@ -65,22 +65,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
             fileBytes,
             filename: _profileImage!.name,
             contentType:
-                MediaType('image', 'jpeg'), // Update MIME type if necessary
+                MediaType('image', 'jpeg'),
           );
           formData.files.add(MapEntry('profile_image', profileImageFile));
         }
-
-        // // Mengirim data ke server
-        // final response = await dio.post(
-        //   url,
-        //   data: formData,
-        //   options: Options(
-        //     headers: {
-        //       'Authorization':
-        //           'Bearer YOUR_ACCESS_TOKEN', // Tambahkan jika diperlukan
-        //     },
-        //   ),
-        // );
 
         // Mengirim data ke server
         final response = await dio.post(
@@ -92,7 +80,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("Profile updated successfully!")),
           );
-          // Navigator.pop(context);
+      
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -126,22 +114,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Pick Profile Image Button
-              Center(
-                child: ElevatedButton(
-                  onPressed: _pickImage,
-                  child: const Text('Pick Profile Image'),
-                ),
-              ),
-              if (_profileImage != null)
-                Center(
-                  child: Text(
-                    'Image selected: ${_profileImage!.name}',
-                    style: const TextStyle(color: Colors.green),
-                  ),
-                ),
-              const SizedBox(height: 20),
-
               // Username
               TextFormField(
                 controller: _usernameController,
@@ -173,9 +145,23 @@ class _EditProfilePageState extends State<EditProfilePage> {
               ),
               const SizedBox(height: 20),
 
+              Center(
+                child: ElevatedButton(
+                  onPressed: _pickImage,
+                  child: const Text('Pick New Profile Image'),
+                ),
+              ),
+              if (_profileImage != null)
+                Center(
+                  child: Text(
+                    'Image selected: ${_profileImage!.name}',
+                    style: const TextStyle(color: Colors.green),
+                  ),
+                ),
+              const SizedBox(height: 20),
+
               // Submit Button
-              SizedBox(
-                width: double.infinity,
+              Center(
                 child: ElevatedButton(
                   onPressed: _submitData,
                   child: const Text('Save Changes'),

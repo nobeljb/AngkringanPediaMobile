@@ -18,7 +18,7 @@ class LeftDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Get the request from the provider
+    // Get request dari provider
     final request = context.watch<CookieRequest>();
 
     return Drawer(
@@ -39,9 +39,9 @@ class LeftDrawer extends StatelessWidget {
                     color: Colors.white,
                   ),
                 ),
-                Padding(padding: EdgeInsets.all(8)),
+                Padding(padding: EdgeInsets.all(5)),
                 Text(
-                  "Made with <3",
+                  "Ngopi Santai, Cemilan Asyik",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 15,
@@ -55,7 +55,6 @@ class LeftDrawer extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.home_work),
             title: const Text('Admin Page'),
-            // Handle the logout operation
             onTap: () async {
               Navigator.push(
                 context,
@@ -67,7 +66,6 @@ class LeftDrawer extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.home),
             title: const Text('Home Page'),
-            // Handle the logout operation
             onTap: () async {
               Navigator.push(
                 context,
@@ -78,14 +76,11 @@ class LeftDrawer extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.edit),
             title: const Text('Edit my profile'),
-            // Handle the logout operation
             onTap: () async {
               final storage = FlutterSecureStorage();
 
               // Ambil user ID dari storage
               final userId = await storage.read(key: 'id');
-              print("user Id $userId");
-
 
               // Ambil profil user dari backend
               final response = await http.get(Uri.parse(
@@ -94,14 +89,8 @@ class LeftDrawer extends StatelessWidget {
               if (response.statusCode == 200) {
                 final profileData = jsonDecode(response.body);
 
-                // print("-------");
-                // print(profileData);
-                // print("********");
-
                 // Buat objek Profile dari response
                 final userProfile = Profile.fromJson(profileData);
-
-                // print(userProfile.toJson());
 
                 Navigator.push(
                   context,
@@ -124,7 +113,7 @@ class LeftDrawer extends StatelessWidget {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Error: User ID not found.')),
                 );
-                return; // Hentikan proses jika ID tidak ditemukan
+                return;
               }
 
               final url =
@@ -165,7 +154,7 @@ class LeftDrawer extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.add),
             title: const Text('Add new user'),
-            // Handle the logout operation
+          
             onTap: () async {
               Navigator.push(
                 context,
@@ -176,7 +165,7 @@ class LeftDrawer extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.logout),
             title: const Text('Logout'),
-            // Handle the logout operation
+            // Handle logout operation
             onTap: () async {
               final response = await request.logout(
                   "http://127.0.0.1:8000/authentication/logout-flutter/");
