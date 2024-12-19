@@ -2,10 +2,7 @@ import 'package:angkringan_pedia/authentication/models/profile.dart';
 import 'package:angkringan_pedia/authentication/screens/list_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
-import 'profile_detail.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http_parser/http_parser.dart';
 
 class EditProfilePage extends StatefulWidget {
@@ -22,7 +19,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
   final TextEditingController _phoneNumberController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   XFile? _profileImage;
-  final storage = const FlutterSecureStorage();
+  bool _deleteProfileImage = false; // Tambahkan ini
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -36,12 +34,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
     _phoneNumberController.text = widget.profile.fields.phoneNumber;
   }
 
-  final ImagePicker _picker = ImagePicker();
   Future<void> _pickImage() async {
     final XFile? pickedFile =
         await _picker.pickImage(source: ImageSource.gallery);
     setState(() {
       _profileImage = pickedFile;
+      if (pickedFile != null)
+        _deleteProfileImage = false; // Jika pilih gambar, nonaktifkan delete
     });
   }
 
@@ -56,41 +55,36 @@ class _EditProfilePageState extends State<EditProfilePage> {
           'username': _usernameController.text,
           'email': _emailController.text,
           'phone_number': _phoneNumberController.text,
+          'delete_profile_image': _deleteProfileImage ? 'true' : 'false',
         });
 
-        // Menambahkan gambar profil jika dipilih
-        if (_profileImage != null) {
+        // menambahkan gambar profil jika dipilih
+        if (_profileImage != null && !_deleteProfileImage) {
           final fileBytes = await _profileImage!.readAsBytes();
           final profileImageFile = MultipartFile.fromBytes(
             fileBytes,
             filename: _profileImage!.name,
-            contentType:
-                MediaType('image', 'jpeg'),
+            contentType: MediaType('image', 'jpeg'),
           );
           formData.files.add(MapEntry('profile_image', profileImageFile));
         }
 
-        // Mengirim data ke server
-        final response = await dio.post(
-          url,
-          data: formData,
-        );
+        final response = await dio.post(url, data: formData);
 
         if (response.statusCode == 200) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("Profile updated successfully!")),
           );
-      
+
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(
-              builder: (context) => ListProfilePage(),
-            ),
+            MaterialPageRoute(builder: (context) => ListProfilePage()),
           );
-
         } else {
+          final errorMessage =
+              response.data['message'] ?? 'Failed to update profile.';
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Failed to update profile.")),
+            SnackBar(content: Text("Error: $errorMessage")),
           );
         }
       } catch (e) {
@@ -112,9 +106,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
         child: Form(
           key: _formKey,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            // crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Username
+              // username
               TextFormField(
                 controller: _usernameController,
                 decoration: const InputDecoration(labelText: 'Username'),
@@ -123,7 +117,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               ),
               const SizedBox(height: 10),
 
-              // Email
+              // email
               TextFormField(
                 controller: _emailController,
                 decoration: const InputDecoration(labelText: 'Email'),
@@ -143,13 +137,24 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 validator: (value) =>
                     value!.isEmpty ? 'Please enter a phone number' : null,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
 
-              Center(
-                child: ElevatedButton(
-                  onPressed: _pickImage,
-                  child: const Text('Pick New Profile Image'),
-                ),
+              // Delete Profile image
+              CheckboxListTile(
+                title: const Text('Delete Profile Image'),
+                value: _deleteProfileImage,
+                onChanged: (value) {
+                  setState(() {
+                    _deleteProfileImage = value!;
+                    if (_deleteProfileImage) _profileImage = null;
+                  });
+                },
+              ),
+
+              // pick new profpic
+              ElevatedButton(
+                onPressed: _pickImage,
+                child: const Text('Pick New Profile Image'),
               ),
               if (_profileImage != null)
                 Center(
@@ -158,14 +163,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     style: const TextStyle(color: Colors.green),
                   ),
                 ),
+              // if (_profileImage != null)
+              //   Text('Selected Image: ${_profileImage!.name}'),
               const SizedBox(height: 20),
 
-              // Submit Button
-              Center(
-                child: ElevatedButton(
-                  onPressed: _submitData,
-                  child: const Text('Save Changes'),
-                ),
+              // submit button
+              ElevatedButton(
+                onPressed: _submitData,
+                child: const Text('Save Changes'),
               ),
             ],
           ),
