@@ -35,6 +35,8 @@ class _RecipeScreenState extends State<RecipeScreen> {
   String? username; // Simpan nama pengguna yang sedang login
   int? recipeId;
   int? userId;
+  bool hasUserReview = false;
+  bool isAdmin = false;
   final storage = FlutterSecureStorage();
 
   // Fungsi untuk mengambil userId dari FlutterSecureStorage dan mengonversinya ke integer
@@ -52,6 +54,16 @@ class _RecipeScreenState extends State<RecipeScreen> {
     if (response.statusCode == 200) {
       username = await storage.read(key: 'username');
       userId = await getUserIdFromStorage();
+      isAdmin = await storage.read(key: 'isAdmin') == 'true';
+
+      // Periksa apakah pengguna sudah memberikan ulasan
+      if (username != null) {
+        final responseData = jsonDecode(response.body);
+        hasUserReview = responseData['ratings'].any(
+          (rating) => rating['username'] == username,
+        );
+      }
+
       return recipeFromJson(response.body);
     } else {
       throw Exception('Failed to load recipe');
@@ -117,6 +129,7 @@ class _RecipeScreenState extends State<RecipeScreen> {
               data: AppTheme.theme, // Terapkan tema kustom untuk RatingReviewForm
               child: RatingReviewForm(
                 recipeId: recipeId!,
+                reviewId: userReview['id'], // Kirim ID review ke form
                 userId: userId!,
                 initialRating: userReview['score'].toDouble(),
                 initialReview: userReview['content'],
@@ -302,7 +315,7 @@ class _RecipeScreenState extends State<RecipeScreen> {
                       },
                     ),
                     const SizedBox(height: 16),
-
+                    
                     // Rating dan Review
                     if (recipe.ratings.isNotEmpty) ...[
                       const Text(
@@ -318,62 +331,132 @@ class _RecipeScreenState extends State<RecipeScreen> {
                         itemCount: recipe.ratings.length,
                         itemBuilder: (context, index) {
                           final rating = recipe.ratings[index];
-                          return ListTile(
-                            title: Row(
+                          final isUserReview = rating["username"] == username; // Cek apakah ulasan milik pengguna saat ini
+
+                          return Column(
+                            children: [
+                              ListTile(
+                                contentPadding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0), // Padding untuk memperindah tampilan
+                                title: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        '${rating["username"]}:',
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16.0,
+                                        ),
+                                      ),
+                                    ),
+                                    Row(
+                                      children: List.generate(
+                                        rating["score"],
+                                        (index) => const Icon(Icons.star, color: Colors.orange, size: 20.0),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 4.0),
+                                      child: Text(
+                                        rating["content"],
+                                        style: const TextStyle(fontSize: 14.0),
+                                      ),
+                                    ),
+                                    if (isUserReview || isAdmin) // Tampilkan tombol hanya untuk ulasan pengguna yang sedang login
+                                      Align(
+                                        alignment: Alignment.centerRight,
+                                        child: TextButton.icon(
+                                          onPressed: () {
+                                            // Navigasi ke form untuk mengedit ulasan
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) => Theme(
+                                                  data: AppTheme.theme,
+                                                  child: RatingReviewForm(
+                                                    recipeId: recipeId!,
+                                                    reviewId: rating["id"], // Kirim ID ulasan ke form
+                                                    userId: userId!,
+                                                    initialRating: rating["score"].toDouble(),
+                                                    initialReview: rating["content"],
+                                                    hasReviewed: true,
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                          icon: const Icon(Icons.edit, color: Colors.blue, size: 18.0),
+                                          label: const Text(
+                                            "Edit",
+                                            style: TextStyle(color: Colors.blue),
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                              const Divider(), // Tambahkan pembatas antara ulasan
+                            ],
+                          );
+                        },
+                      ),
+                      if (!hasUserReview && !isAdmin)
+                        ElevatedButton(
+                          onPressed: () => checkReview(recipe.ratings),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.darkOliveGreen,
+                          ),
+                          child: const Text('Add A Review'),
+                        ),
+                    ]else ...[
+                      Column(
+                        children: [
+                          if (!isAdmin) ...[
+                            const Row(
+                              mainAxisAlignment: MainAxisAlignment.start, // Mengatur posisi ke kiri
                               children: [
                                 Text(
-                                  '${rating["username"]}:',
-                                  style: const TextStyle(
+                                  "No ratings yet",
+                                  style: TextStyle(
+                                    fontSize: 20,
                                     fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                Row(
-                                  children: List.generate(
-                                    rating["score"],
-                                    (index) => const Icon(Icons.star,
-                                        color: Colors.orange),
+                                    color: AppColors.darkOliveGreen,
                                   ),
                                 ),
                               ],
                             ),
-                            subtitle: Text(rating["content"]),
-                          );
-                        },
-                      ),
-                      // Tombol untuk mengecek ulasan
-                      ElevatedButton(
-                        onPressed: () => checkReview(recipe.ratings),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.darkOliveGreen,
-                        ),
-                        child: const Text('Review'),
-                      ),
-                    ]else ...[
-                      const Text(
-                        "No ratings yet",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      const Text(
-                        "Be the first to leave a review!",
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      // Tombol untuk menambahkan review jika tidak ada rating
-                      ElevatedButton(
-                        onPressed: () => checkReview(recipe.ratings),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.darkOliveGreen,
-                        ),
-                        child: const Text('Add A Review'),
+                            const SizedBox(height: 10),
+                            const Row(
+                              mainAxisAlignment: MainAxisAlignment.start, // Mengatur posisi ke kiri
+                              children: [
+                                Text(
+                                  "Be the first to leave a review!",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: AppColors.darkOliveGreen,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start, // Mengatur posisi ke kiri
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () => checkReview(recipe.ratings),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.darkOliveGreen,
+                                  ),
+                                  child: const Text('Add A Review'),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ],
                       ),
                     ],
                   ],
