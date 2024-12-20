@@ -2,10 +2,11 @@ import 'package:angkringan_pedia/authentication/screens/list_profile.dart';
 import 'package:angkringan_pedia/authentication/screens/register.dart';
 import 'package:angkringan_pedia/menu.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:angkringan_pedia/home/screens/home_page.dart';
-import 'package:angkringan_pedia/home/theme/app_theme.dart'; // Import AppTheme
+import 'package:angkringan_pedia/home/theme/app_theme.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 void main() {
@@ -19,7 +20,7 @@ class LoginApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Angkringan Pedia',
-      theme: AppTheme.theme, // Gunakan tema dari AppTheme
+      theme: AppTheme.theme,
       home: const LoginPage(),
     );
   }
@@ -64,6 +65,8 @@ class _LoginPageState extends State<LoginPage> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+
+                  // username
                   const SizedBox(height: 30.0),
                   TextField(
                     controller: _usernameController,
@@ -76,7 +79,13 @@ class _LoginPageState extends State<LoginPage> {
                       contentPadding:
                           EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
                     ),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                          RegExp(r'[a-z0-9]')), // Hanya huruf kecil dan angka
+                    ],
                   ),
+
+                  // password
                   const SizedBox(height: 12.0),
                   TextField(
                     controller: _passwordController,
@@ -112,23 +121,19 @@ class _LoginPageState extends State<LoginPage> {
                       if (request.loggedIn) {
                         String message = response['message'];
                         String uname = response['username'];
-                        bool isAdmin = response['is_admin']; // Periksa apakah admin
+                        bool isAdmin = response['is_admin'];
 
                         // Simpan nama dengan menggunakan FlutterSecureStorage
-                        await storage.write(key: 'username', value: uname); 
-                        await storage.write(key: 'id', value: response['id'].toString());
-                        // Simpan default admin ke false
+                        await storage.write(key: 'username', value: uname);
+                        await storage.write(
+                            key: 'id', value: response['id'].toString());
                         await storage.write(key: 'isAdmin', value: 'false');
-
-                        // print("is_admin value: ${response['is_admin']}");
-                        // print("Is Admin: $isAdmin");
 
                         if (context.mounted) {
                           if (isAdmin) {
                             // Simpan status admin
                             await storage.write(key: 'isAdmin', value: 'true');
-                            // print(isAdmin);
-                            // Jika admin, arahkan ke halaman list_product.dart
+                            // Jika admin, arahkan ke halaman list_profile.dart
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
@@ -181,7 +186,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     child: const Text('Login'),
                   ),
-                  const SizedBox(height: 20.0),
+                  const SizedBox(height: 15.0),
                   GestureDetector(
                     onTap: () {
                       Navigator.push(
@@ -199,7 +204,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20.0),
+                  const SizedBox(height: 7.0),
                   GestureDetector(
                     onTap: () {
                       Navigator.push(

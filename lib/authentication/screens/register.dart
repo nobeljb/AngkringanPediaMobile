@@ -1,10 +1,11 @@
-import 'package:dio/dio.dart'; // Pastikan dio sudah diimport
+import 'package:dio/dio.dart';
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:angkringan_pedia/authentication/screens/login.dart';
-import 'package:pbp_django_auth/pbp_django_auth.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:http_parser/http_parser.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -21,9 +22,9 @@ class _RegisterPageState extends State<RegisterPage> {
   final _phoneController = TextEditingController();
   String _gender = 'M'; // Default gender
   XFile? _profileImage;
-  bool _isAdmin = false; // Checkbox state for Register as Admin
+  bool _isAdmin = false;
 
-  final _picker = ImagePicker();
+  final ImagePicker _picker = ImagePicker();
 
   // Method untuk memilih image dari galeri
   Future<void> _pickImage() async {
@@ -34,9 +35,71 @@ class _RegisterPageState extends State<RegisterPage> {
     });
   }
 
+  Future<void> _registerUser() async {
+    final String username = _usernameController.text;
+    final String password1 = _passwordController.text;
+    final String password2 = _confirmPasswordController.text;
+    final String email = _emailController.text;
+    final String phone = _phoneController.text;
+    final String gender = _gender;
+
+    try {
+      final dio = Dio();
+
+      MultipartFile? profileImageFile;
+      if (_profileImage != null) {
+        final fileBytes = await _profileImage!.readAsBytes();
+        profileImageFile = MultipartFile.fromBytes(
+          fileBytes,
+          filename: _profileImage!.name,
+          contentType: MediaType('image', 'jpeg'),
+        );
+      }
+
+      final formData = FormData.fromMap({
+        'username': username,
+        'password1': password1,
+        'password2': password2,
+        'email': email,
+        'phone_number': phone,
+        'gender': gender,
+        'is_admin': _isAdmin.toString(),
+        if (profileImageFile != null) 'profile_image': profileImageFile,
+      });
+
+      final response = await dio.post(
+        "http://127.0.0.1:8000/authentication/register-flutter/",
+        data: formData,
+        options: Options(
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Successfully registered!')),
+        );
+        Navigator.pop(context);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Failed to register: ${response.data['message'] ?? 'Unknown error'}',
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final request = context.watch<CookieRequest>();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Register'),
@@ -67,6 +130,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+
                   const SizedBox(height: 30.0),
                   TextFormField(
                     controller: _usernameController,
@@ -77,7 +141,12 @@ class _RegisterPageState extends State<RegisterPage> {
                         borderRadius: BorderRadius.all(Radius.circular(12.0)),
                       ),
                     ),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                          RegExp(r'[a-z0-9]')), // Hanya huruf kecil dan angka
+                    ],
                   ),
+
                   const SizedBox(height: 12.0),
                   TextFormField(
                     controller: _passwordController,
@@ -90,6 +159,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                     ),
                   ),
+
                   const SizedBox(height: 12.0),
                   TextFormField(
                     controller: _confirmPasswordController,
@@ -102,6 +172,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                     ),
                   ),
+
                   const SizedBox(height: 12.0),
                   TextFormField(
                     controller: _emailController,
@@ -113,6 +184,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                     ),
                   ),
+
                   const SizedBox(height: 12.0),
                   TextFormField(
                     controller: _phoneController,
@@ -123,7 +195,12 @@ class _RegisterPageState extends State<RegisterPage> {
                         borderRadius: BorderRadius.all(Radius.circular(12.0)),
                       ),
                     ),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                          RegExp(r'[0-9]')), // Hanya huruf kecil dan angka
+                    ],
                   ),
+
                   const SizedBox(height: 12.0),
                   DropdownButtonFormField<String>(
                     value: _gender,
@@ -149,6 +226,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                     ),
                   ),
+
                   const SizedBox(height: 12.0),
                   CheckboxListTile(
                     title: const Text('Register as Admin'),
@@ -160,101 +238,100 @@ class _RegisterPageState extends State<RegisterPage> {
                     },
                     controlAffinity: ListTileControlAffinity.leading,
                   ),
+
                   const SizedBox(height: 12.0),
-                  ElevatedButton(
+                  ElevatedButton.icon(
                     onPressed: _pickImage,
-                    child: const Text('Pick Profile Image'),
+                    icon: const Icon(Icons.photo_library,
+                        color: Colors.white), // Ikon putih
+                    label: const Text('Pick Profile Image',
+                        style: TextStyle(color: Colors.white)), // Teks putih
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      minimumSize: Size(double.infinity, 50),
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      padding: const EdgeInsets.symmetric(vertical: 16.0),
+                    ),
                   ),
+                  if (_profileImage != null)
+                    Center(
+                      child: Text(
+                        'Image selected: ${_profileImage!.name}',
+                        style: const TextStyle(color: Colors.green),
+                      ),
+                    ),
+
                   const SizedBox(height: 24.0),
                   ElevatedButton(
-                    onPressed: () async {
-                      String username = _usernameController.text;
-                      String password1 = _passwordController.text;
-                      String password2 = _confirmPasswordController.text;
-                      String email = _emailController.text;
-                      String phone = _phoneController.text;
-                      String gender = _gender;
-
-                      // Cek kredensial
-                      // Kirim data ke backend Django
-                      final requestData = {
-                        "username": username,
-                        "password1": password1,
-                        "password2": password2,
-                        "email": email,
-                        "phone_number": phone,
-                        "gender": gender,
-                        "is_admin": _isAdmin, // Mengirimkan status Admin
-                        // Anda bisa mengirimkan file image jika ada
-                        "profile_image": _profileImage != null
-                            ? await MultipartFile.fromFile(_profileImage!.path)
-                            : null,
-                      };
-
-                      print(jsonEncode(requestData));
-
-                      // final response = await request.postJson(
-                      //   "http://127.0.0.1:8000/authentication/register-flutter/",
-                      //   jsonEncode(requestData),
-                      // );
-
-                      // if (response['status'] == 'success') {
-                      //   ScaffoldMessenger.of(context).showSnackBar(
-                      //     const SnackBar(
-                      //       content: Text('Successfully registered!'),
-                      //     ),
-                      //   );
-                      //   Navigator.pushReplacement(
-                      //     context,
-                      //     MaterialPageRoute(
-                      //       builder: (context) => const LoginPage(),
-                      //     ),
-                      //   );
-                      // } else {
-                      //   ScaffoldMessenger.of(context).showSnackBar(
-                      //     const SnackBar(
-                      //       content: Text('Failed to register!'),
-                      //     ),
-                      //   );
-                      // }
-                      final response = await request.postJson(
-                        "http://127.0.0.1:8000/authentication/register-flutter/",
-                        jsonEncode(requestData),
-                      );
-
-                      print('Response: ${response}');
-                      // if (response['status'] == 'success') {
-                      //   ScaffoldMessenger.of(context).showSnackBar(
-                      //     const SnackBar(
-                      //         content: Text('Successfully registered!')),
-                      //   );
-                      //   Navigator.pushReplacement(
-                      //     context,
-                      //     MaterialPageRoute(
-                      //         builder: (context) => const LoginPage()),
-                      //   );
-                      // } else {
-                      //   ScaffoldMessenger.of(context).showSnackBar(
-                      //     SnackBar(
-                      //         content: Text(
-                      //             'Failed to register: ${response['message']}')),
-                      //   );
-                      // }
-                      if (response['status'] == 'success') {
+                    onPressed: () {
+                      // Validasi empty field
+                      if (_usernameController.text.isEmpty ||
+                          _passwordController.text.isEmpty ||
+                          _confirmPasswordController.text.isEmpty ||
+                          _emailController.text.isEmpty ||
+                          _phoneController.text.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                              content: Text('Successfully registered!')),
+                              content: Text('Field cannot be empty.')),
                         );
-                        Navigator.pop(
-                            context); // This will take the user back to the previous page
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                              content: Text(
-                                  'Failed to register: ${response['message']}')),
-                        );
+                        return;
                       }
+
+                      // Validasi email format
+                      final emailRegex = RegExp(
+                          r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$");
+                      if (!emailRegex.hasMatch(_emailController.text)) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content:
+                                  Text('Please enter a valid email address.')),
+                        );
+                        return;
+                      }
+
+                      // Validasi phone number
+                      final phoneRegex = RegExp(
+                          r'^[0-9]{10,15}$'); // Hanya angka, panjang 10-15 digit
+                      if (!phoneRegex.hasMatch(_phoneController.text)) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content:
+                                  Text('Please enter a valid phone number.')),
+                        );
+                        return;
+                      }
+
+                      // Validasi password
+                      if (_passwordController.text !=
+                          _confirmPasswordController.text) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('Password doesn\'t match.')),
+                        );
+                        return;
+                      }
+
+                      // Validasi Admin
+                      if (_isAdmin &&
+                          (_passwordController.text != 'kadalganteng' ||
+                              _confirmPasswordController.text !=
+                                  'kadalganteng')) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('Invalid Admin password.')),
+                        );
+                        return;
+                      }
+
+                      // Panggil fungsi registrasi user jika validasi lolos
+                      _registerUser();
                     },
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      minimumSize: Size(double.infinity, 50),
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      padding: const EdgeInsets.symmetric(vertical: 16.0),
+                    ),
                     child: const Text('Register'),
                   ),
                 ],
