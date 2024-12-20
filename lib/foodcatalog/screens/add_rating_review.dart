@@ -10,6 +10,7 @@ class RatingReviewForm extends StatefulWidget {
   final double initialRating; // Initial rating passed as argument
   final String initialReview; // Initial review passed as argument
   final int recipeId; // Recipe ID passed as argument
+  final int reviewId; // Review ID passed as argument
   final int userId; // User ID passed as argument
   final bool hasReviewed;
 
@@ -18,6 +19,7 @@ class RatingReviewForm extends StatefulWidget {
     this.initialRating = 0.0, // Default value if no rating is passed
     this.initialReview = '', // Default value if no review is passed
     this.hasReviewed = false, // Default value if no hasReviewed is passed
+    this.reviewId = 0, // Review ID is required
     required this.recipeId, // Recipe ID is required
     required this.userId, // User ID is required
   }) : super(key: key);
@@ -53,6 +55,7 @@ class _RatingReviewFormState extends State<RatingReviewForm> {
       // Prepare the data to send to Django
       final reviewData = {
         'user_id': widget.userId,
+        'review_id': widget.reviewId,
         'recipe_id': widget.recipeId,
         'score': _rating.toInt(),
         'content': _reviewController.text,
@@ -135,43 +138,67 @@ class _RatingReviewFormState extends State<RatingReviewForm> {
   }
 
   void _deleteReview() async {
-    final reviewData = {
-      'user_id': widget.userId,
-      'recipe_id': widget.recipeId,
-    };
-
-    try {
-      final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/catalog/flutter/delete'), // Endpoint Delete
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: json.encode(reviewData),
-      );
-
-      if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
-        if (responseData['status'] == 'success') {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Review Deleted Successfully!')),
-          );
-          // Kembali ke halaman detail resep
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => RecipeDetails(recipeId: widget.recipeId),
+    // Tampilkan dialog konfirmasi sebelum menghapus
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Confirm Deletion"),
+        content: const Text("Are you sure you want to delete this review?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false), // Tidak jadi menghapus
+            child: const Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true), // Konfirmasi hapus
+            child: const Text(
+              "Delete",
+              style: TextStyle(color: Colors.red),
             ),
+          ),
+        ],
+      ),
+    );
+
+    // Jika pengguna mengkonfirmasi, lanjutkan proses penghapusan
+    if (confirm == true) {
+      final reviewData = {
+        'review_id': widget.reviewId,
+      };
+
+      try {
+        final response = await http.post(
+          Uri.parse('http://127.0.0.1:8000/catalog/flutter/delete'), // Endpoint Delete
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: json.encode(reviewData),
+        );
+
+        if (response.statusCode == 200) {
+          final responseData = json.decode(response.body);
+          if (responseData['status'] == 'success') {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Review Deleted Successfully!')),
+            );
+            // Kembali ke halaman detail resep
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => RecipeDetails(recipeId: widget.recipeId),
+              ),
+            );
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to delete review.')),
           );
         }
-      } else {
+      } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to delete review.')),
+          const SnackBar(content: Text('Network error, please try again.')),
         );
       }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Network error, please try again.')),
-      );
     }
   }
 
