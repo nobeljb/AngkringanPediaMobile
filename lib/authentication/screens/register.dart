@@ -108,12 +108,6 @@ class _RegisterPageState extends State<RegisterPage> {
           onPressed: () {
             Navigator.pop(context);
           },
-          // style: ElevatedButton.styleFrom(
-          //   foregroundColor: Colors.white,
-          //   minimumSize: Size(double.infinity, 50),
-          //   backgroundColor: Theme.of(context).colorScheme.primary,
-          //   padding: const EdgeInsets.symmetric(vertical: 16.0),
-          // ),
         ),
       ),
       body: Center(
@@ -205,18 +199,6 @@ class _RegisterPageState extends State<RegisterPage> {
                       FilteringTextInputFormatter.allow(
                           RegExp(r'[0-9]')), // Hanya huruf kecil dan angka
                     ],
-                    // validator: (value) {
-                    //   if (value == null || value.isEmpty) {
-                    //     return 'Please enter a phone number';
-                    //   }
-                    //   // Validasi untuk format nomor telepon
-                    //   final phoneRegExp = RegExp(
-                    //       r'^[0-9]{10,15}$'); // Hanya angka, panjang 10-15 digit
-                    //   if (!phoneRegExp.hasMatch(value)) {
-                    //     return 'Please enter a valid phone number';
-                    //   }
-                    //   return null;
-                    // },
                   ),
 
                   const SizedBox(height: 12.0),
@@ -256,25 +238,6 @@ class _RegisterPageState extends State<RegisterPage> {
                     },
                     controlAffinity: ListTileControlAffinity.leading,
                   ),
-
-                  // const SizedBox(height: 12.0),
-                  // ElevatedButton(
-                  //   onPressed: _pickImage,
-                  //   style: ElevatedButton.styleFrom(
-                  //     foregroundColor: Colors.white,
-                  //     minimumSize: Size(double.infinity, 50),
-                  //     backgroundColor: Theme.of(context).colorScheme.primary,
-                  //     padding: const EdgeInsets.symmetric(vertical: 16.0),
-                  //   ),
-                  //   child: const Text('Pick Profile Image'),
-                  // ),
-                  // if (_profileImage != null)
-                  //   Center(
-                  //     child: Text(
-                  //       'Image selected: ${_profileImage!.name}',
-                  //       style: const TextStyle(color: Colors.green),
-                  //     ),
-                  //   ),
 
                   const SizedBox(height: 12.0),
                   ElevatedButton.icon(
