@@ -112,8 +112,8 @@ Berikut aksi yang dapat dilakukan masing-masing _role_:
 | *User* | *Guest* | Admin |
 | ---- | ----- | ----- |
 | Melihat detail produk makanan | Melihat detail produk makanan | Melihat detail produk makanan |
-| Memberi ulasan dan rating, dan mengedit/menghapus ulasan dan rating tersebut | - | Menghapus ulasan dan rating |
-| Melihat rating rata-rata | Melihat rating rata-rata | Melihat rating rata-rata |
+| Menambahkan ulasan dan rating, dan mengedit/menghapus ulasan dan rating tersebut | - | Mengedit/menghapus ulasan dan rating |
+| Melihat ulasan dan rata-rata rating suatu produk | Melihat ulasan dan rata-rata rating suatu produk | Melihat ulasan dan rata-rata rating suatu produk |
 
 
 ### ⭐ Favorit
