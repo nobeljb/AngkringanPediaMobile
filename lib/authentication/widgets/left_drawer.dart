@@ -179,9 +179,15 @@ class LeftDrawer extends StatelessWidget {
                   final storage = FlutterSecureStorage();
                   await storage.deleteAll();
 
-                  Navigator.pushReplacement(
+                  // Navigator.pushReplacement(
+                  //   context,
+                  //   MaterialPageRoute(builder: (context) => const LoginPage()),
+                  // );
+                  Navigator.pushAndRemoveUntil(
                     context,
-                    MaterialPageRoute(builder: (context) => const LoginPage()),
+                    MaterialPageRoute(builder: (context) => LoginPage()),
+                    (Route<dynamic> route) =>
+                        false, // Menghapus semua stack navigasi
                   );
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
