@@ -2,10 +2,11 @@ import 'package:angkringan_pedia/foodcatalog/screens/add_rating_review.dart';
 import 'package:angkringan_pedia/home/screens/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '../models/details.dart'; // Pastikan model Recipe berada di sini
-import '../../home/theme/app_theme.dart'; // Import tema aplikasi
+import '../models/details.dart';
+import '../../home/theme/app_theme.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
 
 class RecipeDetails extends StatelessWidget {
   final int recipeId; // Tambahkan parameter recipeId
@@ -47,27 +48,20 @@ class _RecipeScreenState extends State<RecipeScreen> {
 
   // Ambil data dari API berdasarkan ID
   Future<Recipe> fetchRecipe() async {
-    final response = await http.get(
-      Uri.parse('http://127.0.0.1:8000/catalog/${widget.recipeId}/json'), // Gunakan widget.recipeId
-    );
+    final request = context.read<CookieRequest>();
+    final response = await request.get("http://127.0.0.1:8000/catalog/${widget.recipeId}/json");
+    username = await storage.read(key: 'username');
+    userId = await getUserIdFromStorage();
+    isAdmin = await storage.read(key: 'isAdmin') == 'true';
 
-    if (response.statusCode == 200) {
-      username = await storage.read(key: 'username');
-      userId = await getUserIdFromStorage();
-      isAdmin = await storage.read(key: 'isAdmin') == 'true';
-
-      // Periksa apakah pengguna sudah memberikan ulasan
-      if (username != null) {
-        final responseData = jsonDecode(response.body);
-        hasUserReview = responseData['ratings'].any(
-          (rating) => rating['username'] == username,
-        );
-      }
-
-      return recipeFromJson(response.body);
-    } else {
-      throw Exception('Failed to load recipe');
+    // Periksa apakah pengguna sudah memberikan ulasan
+    if (username != null) {
+      hasUserReview = response['ratings'].any(
+        (rating) => rating['username'] == username,
+      );
     }
+
+    return recipeFromJson(jsonEncode(response));
   }
 
   @override
