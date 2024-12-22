@@ -65,7 +65,7 @@ class _RatingReviewFormState extends State<RatingReviewForm> {
 
       if (!widget.hasReviewed) {
         // Send POST request to Django
-        final response = await request.post(
+        final response = await request.postJson(
                         "https://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/catalog/flutter/create",
                         jsonEncode(reviewData));
                         
@@ -88,7 +88,7 @@ class _RatingReviewFormState extends State<RatingReviewForm> {
         }
       }else{
         // Update review menggunakan endpoint edit_rating_review_flutter
-        final response = await request.post(
+        final response = await request.postJson(
                         "https://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/catalog/flutter/edit",
                         jsonEncode(reviewData));
 
@@ -142,7 +142,7 @@ class _RatingReviewFormState extends State<RatingReviewForm> {
         'review_id': widget.reviewId,
       };
 
-      final response = await request.post(
+      final response = await request.postJson(
                         "https://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/catalog/flutter/delete",
                         jsonEncode(reviewData));
       if (response['status'] == 'success') {
