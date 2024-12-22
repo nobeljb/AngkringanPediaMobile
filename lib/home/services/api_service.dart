@@ -1,3 +1,4 @@
+// lib/home/services/api_service.dart
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/recipe.dart';
@@ -127,8 +128,13 @@ class ApiService {
           'Accept': 'application/json',
         },
       );
-      
-      return response.statusCode == 204;
+
+      if (response.statusCode == 204) {
+        return true; // Successfully deleted
+      } else {
+        final errorResponse = jsonDecode(response.body);
+        throw Exception('Failed to delete recipe: ${errorResponse['error'] ?? 'Unknown error'}');
+      }
     } catch (e) {
       throw Exception('Failed to delete recipe: $e');
     }

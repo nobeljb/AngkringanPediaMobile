@@ -1,4 +1,4 @@
-// Update the RecipeCard class in recipe_card.dart
+// lib/home/widgets/recipe_card.dart
 import 'package:flutter/material.dart';
 import '../models/recipe.dart';
 import '../theme/app_theme.dart';
@@ -17,11 +17,52 @@ class RecipeCard extends StatelessWidget {
     this.onDelete,
   }) : super(key: key);
 
+  void _handleDelete(BuildContext context) {
+    if (!isAdmin) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Only Admin can delete recipes'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Recipe'),
+          content: Text('Are you sure you want to delete ${recipe.recipeName}?'),
+          actions: [
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text(
+                'Delete',
+                style: TextStyle(color: Colors.red),
+              ),
+              onPressed: () {
+                if (onDelete != null) {
+                  onDelete!();
+                }
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        // Navigate to recipe details
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -118,54 +159,25 @@ class RecipeCard extends StatelessWidget {
                 ),
               ],
             ),
-            Positioned(
-              top: 8,
-              right: 8,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.red.withOpacity(0.8),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: IconButton(
-                  icon: const Icon(
-                    Icons.delete,
-                    color: Colors.white,
-                    size: 20,
+            if (isAdmin && onDelete != null)
+              Positioned(
+                top: 8,
+                right: 8,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.red.withOpacity(0.8),
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: const Text('Delete Recipe'),
-                          content: Text('Are you sure you want to delete ${recipe.recipeName}?'),
-                          actions: [
-                            TextButton(
-                              child: const Text('Cancel'),
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                            TextButton(
-                              child: const Text(
-                                'Delete',
-                                style: TextStyle(color: Colors.red),
-                              ),
-                              onPressed: () {
-                                if (onDelete != null) {
-                                  onDelete!();
-                                }
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  },
+                  child: IconButton(
+                    icon: const Icon(
+                      Icons.delete,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                    onPressed: () => _handleDelete(context),
+                  ),
                 ),
               ),
-            ),
           ],
         ),
       ),

@@ -1,8 +1,7 @@
+// lib/home/main.dart
 import 'package:angkringan_pedia/authentication/screens/login.dart';
-import 'package:angkringan_pedia/home/screens/home_page.dart';
 import 'package:angkringan_pedia/home/theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:angkringan_pedia/menu.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 

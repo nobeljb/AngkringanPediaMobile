@@ -1,5 +1,6 @@
-// lib/screens/add_recipe_screen.dart
+// lib/home/screens/add_recipe_screen.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
 
@@ -18,13 +19,45 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
   final _ingredientsController = TextEditingController();
   final _imageUrlController = TextEditingController();
   final List<TextEditingController> _instructionControllers = [];
+  final storage = const FlutterSecureStorage();
   bool _isLoading = false;
+  bool _isAdmin = false;
 
   @override
   void initState() {
     super.initState();
-    // Add initial instruction step
     _addInstructionStep();
+    _checkAdminStatus();
+  }
+
+  Future<void> _checkAdminStatus() async {
+    try {
+      final userRole = await storage.read(key: 'userRole');
+      setState(() {
+        _isAdmin = userRole == 'admin';
+      });
+      
+      if (!_isAdmin && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Only Admin can add recipes'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      print('Error checking admin status: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error checking permissions'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        Navigator.of(context).pop();
+      }
+    }
   }
 
   void _addInstructionStep() {
