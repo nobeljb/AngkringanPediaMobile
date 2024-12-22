@@ -16,7 +16,7 @@ class ListProfilePage extends StatefulWidget {
 class _ListProfilePageState extends State<ListProfilePage> {
   Future<List<Profile>> fetchProfiles(CookieRequest request) async {
     final response =
-        await request.get('http://127.0.0.1:8000/authentication/json/');
+        await request.get('http://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/authentication/json/');
     List<Profile> profiles = [];
 
     final storage = FlutterSecureStorage();
@@ -69,7 +69,7 @@ class _ListProfilePageState extends State<ListProfilePage> {
               itemBuilder: (context, index) {
                 final profile = snapshot.data[index];
                 final imageUrl =
-                    "http://127.0.0.1:8000/${profile.fields.profileImage}";
+                    "http://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/${profile.fields.profileImage}";
                 return Card(
                   elevation: 4,
                   margin: const EdgeInsets.symmetric(vertical: 8),
