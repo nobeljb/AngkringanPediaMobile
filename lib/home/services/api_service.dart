@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import '../models/recipe.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id';
+  static const String baseUrl = 'https://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id';
 
   Future<Map<String, dynamic>> addRecipe(Map<String, dynamic> recipeData) async {
     try {
