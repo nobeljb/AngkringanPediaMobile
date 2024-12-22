@@ -1,4 +1,3 @@
-// lib/home/widgets/recipe_card.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/recipe.dart';
@@ -6,72 +5,46 @@ import '../theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:angkringan_pedia/foodcatalog/screens/recipe_details.dart';
 
-class RecipeCard extends StatelessWidget {
+class RecipeCard extends StatefulWidget {
   final Recipe recipe;
-  final bool isAdmin;
   final Function()? onDelete;
 
   const RecipeCard({
     Key? key, 
     required this.recipe,
-    required this.isAdmin,
     this.onDelete,
   }) : super(key: key);
 
-void _handleDelete(BuildContext context) async {
-    final storage = const FlutterSecureStorage();
-    final isAdminStr = await storage.read(key: 'isAdmin');
-    final isAdmin = isAdminStr?.toLowerCase() == 'true';
+  @override
+  _RecipeCardState createState() => _RecipeCardState();
+}
 
-    if (!isAdmin) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Only Admin can delete recipes'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
+class _RecipeCardState extends State<RecipeCard> {
+  bool isAdmin = false;
+  final storage = FlutterSecureStorage();
 
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Delete Recipe'),
-          content: Text('Are you sure you want to delete ${recipe.recipeName}?'),
-          actions: [
-            TextButton(
-              child: const Text('Cancel'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: const Text(
-                'Delete',
-                style: TextStyle(color: Colors.red),
-              ),
-              onPressed: () {
-                if (onDelete != null) {
-                  onDelete!();
-                }
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
+  @override
+  void initState() {
+    super.initState();
+    _checkAdminStatus();
+  }
+
+  Future<void> _checkAdminStatus() async {
+    final adminStatus = await storage.read(key: 'isAdmin');
+    setState(() {
+      isAdmin = adminStatus == 'true';
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
+        // Navigate to recipe details
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => RecipeDetails(recipeId: recipe.id),
+            builder: (context) => RecipeDetails(recipeId: widget.recipe.id),
           ),
         );
       },
@@ -87,7 +60,7 @@ void _handleDelete(BuildContext context) async {
                     top: Radius.circular(12),
                   ),
                   child: Image.network(
-                    recipe.imageUrl,
+                    widget.recipe.imageUrl,
                     height: 140,
                     width: double.infinity,
                     fit: BoxFit.cover,
@@ -110,7 +83,7 @@ void _handleDelete(BuildContext context) async {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        recipe.recipeName,
+                        widget.recipe.recipeName,
                         style: GoogleFonts.poppins(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -130,7 +103,7 @@ void _handleDelete(BuildContext context) async {
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
-                              recipe.cookingTime,
+                              widget.recipe.cookingTime,
                               style: const TextStyle(
                                 fontSize: 12,
                                 color: AppColors.buttonColor,
@@ -150,7 +123,7 @@ void _handleDelete(BuildContext context) async {
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
-                              recipe.servings,
+                              widget.recipe.servings,
                               style: const TextStyle(
                                 fontSize: 12,
                                 color: AppColors.buttonColor,
@@ -164,7 +137,8 @@ void _handleDelete(BuildContext context) async {
                 ),
               ],
             ),
-            if (isAdmin && onDelete != null)
+            // Only show delete button if user is admin and onDelete callback exists
+            if (isAdmin && widget.onDelete != null)
               Positioned(
                 top: 8,
                 right: 8,
@@ -179,7 +153,35 @@ void _handleDelete(BuildContext context) async {
                       color: Colors.white,
                       size: 20,
                     ),
-                    onPressed: () => _handleDelete(context),
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: const Text('Delete Recipe'),
+                            content: Text('Are you sure you want to delete ${widget.recipe.recipeName}?'),
+                            actions: [
+                              TextButton(
+                                child: const Text('Cancel'),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                              TextButton(
+                                child: const Text(
+                                  'Delete',
+                                  style: TextStyle(color: Colors.red),
+                                ),
+                                onPressed: () {
+                                  widget.onDelete!();
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
                   ),
                 ),
               ),
