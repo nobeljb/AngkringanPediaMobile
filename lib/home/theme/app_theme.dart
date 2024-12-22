@@ -14,9 +14,78 @@ class AppColors {
   static const buttonColor = oliveDrab;
   static const textHoverPrimary = darkOliveGreen;
   static const textHoverSecondary = sageGreen;
+  static const shadowColor = Color(0x1A000000);
+  static const overlayColor = Color(0x80556B2F);
+  static const cardHoverColor = Color(0xFFF5FFF5);
+}
+class AppResponsive {
+  static bool isMobile(BuildContext context) =>
+      MediaQuery.of(context).size.width < 600;
+      
+  static bool isTablet(BuildContext context) =>
+      MediaQuery.of(context).size.width >= 600 &&
+      MediaQuery.of(context).size.width < 1200;
+      
+  static bool isDesktop(BuildContext context) =>
+      MediaQuery.of(context).size.width >= 1200;
+      
+  static double getCardWidth(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    if (width < 600) return width * 0.44; // Mobile
+    if (width < 1200) return width * 0.3; // Tablet
+    return width * 0.2; // Desktop
+  }
+}
+class AppTheme {
+  static ThemeData getMobileTheme() {
+  final baseTheme = theme;
+  return baseTheme.copyWith(
+    textTheme: baseTheme.textTheme.copyWith(
+      titleLarge: baseTheme.textTheme.titleLarge?.copyWith(
+        fontSize: 18,
+      ),
+      bodyLarge: baseTheme.textTheme.bodyLarge?.copyWith(
+        fontSize: 14,
+      ),
+    ),
+    cardTheme: baseTheme.cardTheme.copyWith(
+      margin: const EdgeInsets.symmetric(
+        horizontal: 8,
+        vertical: 6,
+      ),
+    ),
+    appBarTheme: baseTheme.appBarTheme.copyWith(
+      toolbarHeight: 56,
+    ),
+  );
+}
+static BoxDecoration getMobileCardDecoration() {
+  return BoxDecoration(
+    color: AppColors.honeydew,
+    borderRadius: BorderRadius.circular(12),
+    boxShadow: [
+      BoxShadow(
+        color: AppColors.shadowColor,
+        blurRadius: 6,
+        offset: const Offset(0, 2),
+      ),
+    ],
+  );
 }
 
-class AppTheme {
+static BoxDecoration getMobileSearchDecoration() {
+  return BoxDecoration(
+    color: Colors.white,
+    borderRadius: BorderRadius.circular(30),
+    boxShadow: [
+      BoxShadow(
+        color: AppColors.shadowColor,
+        blurRadius: 4,
+        offset: const Offset(0, 2),
+      ),
+    ],
+  );
+}
   static ThemeData get theme => ThemeData(
     primaryColor: AppColors.darkOliveGreen,
     scaffoldBackgroundColor: AppColors.backgroundColor,
@@ -195,3 +264,6 @@ class _HoverIconButtonState extends State<HoverIconButton> {
     );
   }
 }
+
+
+

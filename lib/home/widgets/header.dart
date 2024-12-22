@@ -20,6 +20,7 @@ class Header extends StatefulWidget {
 class _HeaderState extends State<Header> {
   final TextEditingController _searchController = TextEditingController();
   String _selectedFilter = 'none';
+  bool _isSearchExpanded = false;
 
   Future<void> _handleLogout(BuildContext context) async {
     showDialog(
@@ -31,7 +32,7 @@ class _HeaderState extends State<Header> {
           actions: [
             TextButton(
               child: const Text('Cancel'),
-              onPressed: () => Navigator.of(context).pop(), // Close the dialog
+              onPressed: () => Navigator.of(context).pop(),
             ),
             TextButton(
               child: const Text(
@@ -39,12 +40,11 @@ class _HeaderState extends State<Header> {
                 style: TextStyle(color: Colors.red),
               ),
               onPressed: () async {
-                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop();
                 try {
                   final request = context.read<CookieRequest>();
                   final response = await request.logout(
                       "https://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/authentication/logout-flutter/");
-                      // 127.0.0.1:8000
 
                   if (response['status']) {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -54,20 +54,16 @@ class _HeaderState extends State<Header> {
                       ),
                     );
                     final storage = FlutterSecureStorage();
-
-                    // Hapus semua data
                     await storage.deleteAll();
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(
-                          builder: (context) => const LoginPage()),
+                      MaterialPageRoute(builder: (context) => const LoginPage()),
                     );
                   } else {
                     _showErrorMessage(context, response["message"]);
                   }
                 } catch (e) {
-                  _showErrorMessage(
-                      context, "Logout failed. Please try again.");
+                  _showErrorMessage(context, "Logout failed. Please try again.");
                 }
               },
             ),
@@ -82,138 +78,6 @@ class _HeaderState extends State<Header> {
       SnackBar(
         content: Text(message),
         backgroundColor: Colors.red,
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final request = context.watch<CookieRequest>();
-
-    return Container(
-      color: AppColors.darkOliveGreen,
-      height: 70,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        children: [
-          // Logo and Title
-          Row(
-            children: [
-              Image.asset(
-                'assets/images/logo2.png',
-                height: 40,
-              ),
-              const SizedBox(width: 12),
-              Text(
-                'AngkringanPedia',
-                style: GoogleFonts.poppins(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.honeydew,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(width: 24),
-          // Search Bar
-          Expanded(
-            child: Container(
-              height: 40,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(30),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  const SizedBox(width: 16),
-                  const Icon(
-                    Icons.search,
-                    color: AppColors.darkOliveGreen,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: TextField(
-                      controller: _searchController,
-                      style: const TextStyle(color: AppColors.darkOliveGreen),
-                      decoration: InputDecoration(
-                        hintText: _getSearchHint(),
-                        hintStyle: TextStyle(
-                          color: AppColors.darkOliveGreen.withOpacity(0.5),
-                        ),
-                        border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(vertical: 8),
-                      ),
-                      onSubmitted: (value) =>
-                          widget.onSearch(value, _selectedFilter),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          // Filter Button
-          Container(
-            height: 40,
-            decoration: BoxDecoration(
-              color: AppColors.oliveDrab,
-              borderRadius: BorderRadius.circular(30),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: PopupMenuButton<String>(
-              icon: const Icon(
-                Icons.filter_list,
-                color: AppColors.honeydew,
-              ),
-              color: AppColors.honeydew,
-              onSelected: (String value) {
-                setState(() => _selectedFilter = value);
-                widget.onSearch(_searchController.text, value);
-              },
-              itemBuilder: (BuildContext context) => [
-                _buildFilterItem('none', 'No Filter'),
-                _buildFilterItem('name', 'By Name'),
-                _buildFilterItem('ingredient', 'By Ingredient'),
-                _buildFilterItem('servings', 'By Servings'),
-                _buildFilterItem('cooking_time', 'By Cooking Time'),
-              ],
-            ),
-          ),
-          const SizedBox(width: 16),
-          // Action Buttons
-          HoverIconButton(
-            icon: Icons.favorite_border,
-            onPressed: () {},
-            defaultColor: AppColors.honeydew,
-            hoverColor: AppColors.sageGreen,
-          ),
-          HoverIconButton(
-            icon: Icons.person,
-            onPressed: () {},
-            defaultColor: AppColors.honeydew,
-            hoverColor: AppColors.sageGreen,
-          ),
-          // Logout Button
-          HoverIconButton(
-            icon: Icons.logout,
-            onPressed: () => _handleLogout(context),
-            defaultColor: AppColors.honeydew,
-            hoverColor: Colors.red[300]!,
-          ),
-        ],
       ),
     );
   }
@@ -233,6 +97,179 @@ class _HeaderState extends State<Header> {
     }
   }
 
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 600;
+
+    return Container(
+      color: AppColors.darkOliveGreen,
+      child: Column(
+        children: [
+          // Top bar with logo, title, and action buttons
+          Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: isMobile ? 8 : 16,
+              vertical: isMobile ? 8 : 12,
+            ),
+            child: Row(
+              children: [
+                // Logo and Title
+                Expanded(
+                  child: Row(
+                    children: [
+                      Image.asset(
+                        'assets/images/logo2.png',
+                        height: isMobile ? 32 : 40,
+                      ),
+                      const SizedBox(width: 8),
+                      if (!isMobile || !_isSearchExpanded)
+                        Text(
+                          'AngkringanPedia',
+                          style: GoogleFonts.poppins(
+                            fontSize: isMobile ? 18 : 24,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.honeydew,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                // Mobile search toggle button
+                if (isMobile)
+                  IconButton(
+                    icon: Icon(
+                      _isSearchExpanded ? Icons.close : Icons.search,
+                      color: AppColors.honeydew,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _isSearchExpanded = !_isSearchExpanded;
+                        if (!_isSearchExpanded) {
+                          _searchController.clear();
+                          widget.onSearch('', 'none'); // Reset search
+                        }
+                      });
+                    },
+                  ),
+                // Action buttons (visible on desktop or when search is collapsed on mobile)
+                if (!isMobile || !_isSearchExpanded)
+                  Row(
+                    children: [
+                      HoverIconButton(
+                        icon: Icons.favorite_border,
+                        onPressed: () {},
+                        defaultColor: AppColors.honeydew,
+                        hoverColor: AppColors.sageGreen,
+                      ),
+                      HoverIconButton(
+                        icon: Icons.person,
+                        onPressed: () {},
+                        defaultColor: AppColors.honeydew,
+                        hoverColor: AppColors.sageGreen,
+                      ),
+                      HoverIconButton(
+                        icon: Icons.logout,
+                        onPressed: () => _handleLogout(context),
+                        defaultColor: AppColors.honeydew,
+                        hoverColor: Colors.red[300]!,
+                      ),
+                    ],
+                  ),
+              ],
+            ),
+          ),
+          // Search bar section
+          if (!isMobile || _isSearchExpanded)
+            Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: isMobile ? 8 : 16,
+                vertical: 8,
+              ),
+              decoration: isMobile
+                  ? BoxDecoration(
+                      color: AppColors.darkOliveGreen.withOpacity(0.95),
+                    )
+                  : null,
+              child: Row(
+                children: [
+                  // Search TextField
+                  Expanded(
+                    child: Container(
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(30),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: TextField(
+                        controller: _searchController,
+                        style: const TextStyle(color: AppColors.darkOliveGreen),
+                        decoration: InputDecoration(
+                          hintText: _getSearchHint(),
+                          hintStyle: TextStyle(
+                            color: AppColors.darkOliveGreen.withOpacity(0.5),
+                          ),
+                          prefixIcon: const Icon(
+                            Icons.search,
+                            color: AppColors.darkOliveGreen,
+                          ),
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                        ),
+                        onSubmitted: (value) => widget.onSearch(value, _selectedFilter),
+                        textInputAction: TextInputAction.search,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  // Filter Button
+                  Container(
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: AppColors.oliveDrab,
+                      borderRadius: BorderRadius.circular(30),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: PopupMenuButton<String>(
+                      icon: const Icon(
+                        Icons.filter_list,
+                        color: AppColors.honeydew,
+                      ),
+                      color: AppColors.honeydew,
+                      onSelected: (String value) {
+                        setState(() => _selectedFilter = value);
+                        widget.onSearch(_searchController.text, value);
+                      },
+                      itemBuilder: (BuildContext context) => [
+                        _buildFilterItem('none', 'No Filter'),
+                        _buildFilterItem('name', 'By Name'),
+                        _buildFilterItem('ingredient', 'By Ingredient'),
+                        _buildFilterItem('servings', 'By Servings'),
+                        _buildFilterItem('cooking_time', 'By Cooking Time'),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
   PopupMenuItem<String> _buildFilterItem(String value, String text) {
     return PopupMenuItem<String>(
       value: value,
@@ -242,9 +279,14 @@ class _HeaderState extends State<Header> {
       ),
     );
   }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 }
 
-// HoverIconButton stays exactly the same as in your original code
 class HoverIconButton extends StatefulWidget {
   final IconData icon;
   final VoidCallback onPressed;
@@ -278,6 +320,11 @@ class _HoverIconButtonState extends State<HoverIconButton> {
         ),
         onPressed: widget.onPressed,
         splashRadius: 24,
+        padding: const EdgeInsets.all(8),
+        constraints: const BoxConstraints(
+          minWidth: 40,
+          minHeight: 40,
+        ),
       ),
     );
   }
