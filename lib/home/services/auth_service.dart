@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../../authentication/models/profile.dart';
 
 class AuthService {
-  static const String baseUrl = 'http://localhost:8000';
+  static const String baseUrl = 'http://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id';
   final storage = const FlutterSecureStorage();
 
   Future<bool> checkIsAdmin() async {

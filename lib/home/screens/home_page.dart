@@ -77,7 +77,7 @@ class _HomePageState extends State<HomePage> {
       }
 
       final response = await http.get(
-        Uri.parse('http://localhost:8000/auth/get_user_profile/$username/'),
+        Uri.parse('http://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/auth/get_user_profile/$username/'),
       );
 
       if (response.statusCode == 200) {
