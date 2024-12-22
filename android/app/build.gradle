@@ -61,8 +61,3 @@ dependencies {
     // Your other dependencies (e.g., Flutter dependencies)
     implementation 'com.google.crypto.tink:tink-android:1.6.1' // For Google Tink library, if needed
 }
-
-// Ensure the clean task is available
-tasks.register("clean", Delete) {
-    delete rootProject.buildDir
-}
