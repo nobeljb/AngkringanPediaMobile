@@ -66,7 +66,7 @@ class _RatingReviewFormState extends State<RatingReviewForm> {
       if (!widget.hasReviewed) {
         // Send POST request to Django
         final response = await request.postJson(
-                        "http://127.0.0.1:8000/catalog/flutter/create",
+                        "https://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/catalog/flutter/create",
                         jsonEncode(reviewData));
                         
         if (response['status'] == 'success') {
@@ -89,7 +89,7 @@ class _RatingReviewFormState extends State<RatingReviewForm> {
       }else{
         // Update review menggunakan endpoint edit_rating_review_flutter
         final response = await request.postJson(
-                        "http://127.0.0.1:8000/catalog/flutter/edit",
+                        "https://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/catalog/flutter/edit",
                         jsonEncode(reviewData));
 
         if (response['status'] == 'success') {
@@ -143,7 +143,7 @@ class _RatingReviewFormState extends State<RatingReviewForm> {
       };
 
       final response = await request.postJson(
-                        "http://127.0.0.1:8000/catalog/flutter/delete",
+                        "https://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/catalog/flutter/delete",
                         jsonEncode(reviewData));
       if (response['status'] == 'success') {
         ScaffoldMessenger.of(context).showSnackBar(

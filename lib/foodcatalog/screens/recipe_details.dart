@@ -49,7 +49,7 @@ class _RecipeScreenState extends State<RecipeScreen> {
   // Ambil data dari API berdasarkan ID
   Future<Recipe> fetchRecipe() async {
     final request = context.read<CookieRequest>();
-    final response = await request.get("http://127.0.0.1:8000/catalog/${widget.recipeId}/json");
+    final response = await request.get("https://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/catalog/${widget.recipeId}/json");
     username = await storage.read(key: 'username');
     userId = await getUserIdFromStorage();
     isAdmin = await storage.read(key: 'isAdmin') == 'true';
@@ -237,6 +237,7 @@ class _RecipeScreenState extends State<RecipeScreen> {
                       ),
                     ),
 
+                    const SizedBox(height: 16),
                     // Waktu Memasak dan Porsi
                     Text(
                       "Cooking Time: ${recipe.cookingTime}",
