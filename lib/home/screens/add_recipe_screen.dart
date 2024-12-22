@@ -30,11 +30,12 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
     _checkAdminStatus();
   }
 
-  Future<void> _checkAdminStatus() async {
+Future<void> _checkAdminStatus() async {
     try {
-      final userRole = await storage.read(key: 'userRole');
+      final storage = const FlutterSecureStorage();
+      final isAdminStr = await storage.read(key: 'isAdmin');
       setState(() {
-        _isAdmin = userRole == 'admin';
+        _isAdmin = isAdminStr?.toLowerCase() == 'true';
       });
       
       if (!_isAdmin && mounted) {
@@ -213,25 +214,30 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
     );
   }
 
-  Future<void> _submitForm() async {
+Future<void> _submitForm() async {
     if (_formKey.currentState?.validate() ?? false) {
       setState(() => _isLoading = true);
       try {
-        List<Map<String, dynamic>> instructions = [];
-        for (int i = 0; i < _instructionControllers.length; i++) {
-          instructions.add({
-            'step_number': i + 1,
-            'description': _instructionControllers[i].text,
-          });
-        }
+        // Parse ingredients into a list
+        List<String> ingredientsList = _ingredientsController.text
+            .split(',')
+            .map((e) => e.trim())
+            .where((e) => e.isNotEmpty)
+            .toList();
+
+        // Get all non-empty instructions
+        List<String> instructionsList = _instructionControllers
+            .map((controller) => controller.text.trim())
+            .where((text) => text.isNotEmpty)
+            .toList();
 
         final result = await ApiService().addRecipe({
           'recipe_name': _recipeNameController.text,
           'cooking_time': _cookingTimeController.text,
           'servings': _servingsController.text,
-          'ingredients_list': _ingredientsController.text,
+          'ingredients_list': ingredientsList,
           'image_url': _imageUrlController.text,
-          'instructions_list': instructions.map((i) => i['description']).toList(),
+          'instructions_list': instructionsList,
         });
 
         if (!mounted) return;

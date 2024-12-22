@@ -88,7 +88,7 @@ Fungsi Modul:
 - Membuat *Navigation Bar*, *Footer* dan *Homepage*
 - Daftar Makanan: Menampilkan daftar menu makanan yang tersedia di platform.
 - Pencarian: Pengguna dapat menggunakan fitur pencarian untuk menemukan makanan tertentu.
-- Filter: Menyediakan filter berdasarkan bahan baku, dan nama untuk mempermudah pencarian.
+- Filter: Menyediakan filter berdasarkan bahan baku, porsi, waktu memasak, dan nama untuk mempermudah pencarian.
 
 Berikut aksi yang dapat dilakukan masing-masing _role_:
 | *User* | *Guest* | Admin |

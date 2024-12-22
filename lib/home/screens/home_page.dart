@@ -68,28 +68,13 @@ class _HomePageState extends State<HomePage> {
     _checkAdminStatus();
   }
 
-  Future<void> _checkAdminStatus() async {
+Future<void> _checkAdminStatus() async {
     try {
-      final username = await storage.read(key: 'username');
-      if (username == null) {
-        setState(() => isAdmin = false);
-        return;
-      }
-
-      final response = await http.get(
-        Uri.parse('http://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/auth/get_user_profile/$username/'),
-      );
-
-      if (response.statusCode == 200) {
-        final List<Profile> profiles = profileFromJson(response.body);
-        if (profiles.isNotEmpty) {
-          setState(() {
-            isAdmin = profiles[0].fields.isAdmin.toLowerCase() == 'true';
-          });
-        }
-      } else {
-        throw Exception('Failed to load profile');
-      }
+      final storage = const FlutterSecureStorage();
+      final isAdminStr = await storage.read(key: 'isAdmin');
+      setState(() {
+        isAdmin = isAdminStr?.toLowerCase() == 'true';
+      });
     } catch (e) {
       print('Error checking admin status: $e');
       setState(() => isAdmin = false);

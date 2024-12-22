@@ -1,5 +1,6 @@
 // lib/home/widgets/recipe_card.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/recipe.dart';
 import '../theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -17,7 +18,11 @@ class RecipeCard extends StatelessWidget {
     this.onDelete,
   }) : super(key: key);
 
-  void _handleDelete(BuildContext context) {
+void _handleDelete(BuildContext context) async {
+    final storage = const FlutterSecureStorage();
+    final isAdminStr = await storage.read(key: 'isAdmin');
+    final isAdmin = isAdminStr?.toLowerCase() == 'true';
+
     if (!isAdmin) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
