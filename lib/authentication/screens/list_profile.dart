@@ -19,6 +19,7 @@ class _ListProfilePageState extends State<ListProfilePage> {
   Future<List<Profile>> fetchProfiles(CookieRequest request) async {
     final response =
         await request.get('https://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/authentication/json/');
+        // 127.0.0.1:8000
     List<Profile> profiles = [];
 
     final storage = FlutterSecureStorage();
@@ -72,6 +73,7 @@ class _ListProfilePageState extends State<ListProfilePage> {
                 final profile = snapshot.data[index];
                 final imageUrl =
                     "https://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/${profile.fields.profileImage}";
+                    // 127.0.0.1:8000
                 return Card(
                   elevation: 4,
                   margin: const EdgeInsets.symmetric(vertical: 8),

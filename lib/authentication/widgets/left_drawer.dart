@@ -124,6 +124,7 @@ class LeftDrawer extends StatelessWidget {
 
               final url =
                   "https://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/authentication/adminkudeleteflutter/$id";
+                  // 127.0.0.1:8000
 
               try {
                 final response = await http.delete(Uri.parse(url));
@@ -178,6 +179,7 @@ class LeftDrawer extends StatelessWidget {
             onTap: () async {
               final response = await request.logout(
                   "https://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/authentication/logout-flutter/");
+                  // 127.0.0.1:8000
               String message = response["message"];
               if (context.mounted) {
                 if (response['status']) {

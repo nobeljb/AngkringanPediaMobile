@@ -114,6 +114,7 @@ class _LoginPageState extends State<LoginPage> {
                       // Cek kredensial
                       final response = await request.login(
                         "https://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/authentication/login-flutter/",
+                        // 127.0.0.1:8000
                         {
                           'username': username,
                           'password': password,

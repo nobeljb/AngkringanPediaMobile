@@ -71,6 +71,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
       final response = await dio.post(
         "https://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/authentication/register-flutter/",
+        // 127.0.0.1:8000
         data: formData,
         options: Options(
           headers: {
