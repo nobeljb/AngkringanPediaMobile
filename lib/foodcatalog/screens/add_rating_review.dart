@@ -4,7 +4,8 @@ import 'package:angkringan_pedia/foodcatalog/screens/recipe_details.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import '../../home/theme/app_theme.dart'; // Import your custom theme
-import 'package:http/http.dart' as http;
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
 
 class RatingReviewForm extends StatefulWidget {
   final double initialRating; // Initial rating passed as argument
@@ -42,6 +43,7 @@ class _RatingReviewFormState extends State<RatingReviewForm> {
   }
 
   void _submitForm() async{
+    final request = context.read<CookieRequest>();
     if (_formKey.currentState!.validate()) {
       // Check if rating is valid (greater than 0)
       if (_rating == 0.0) {
@@ -54,83 +56,56 @@ class _RatingReviewFormState extends State<RatingReviewForm> {
 
       // Prepare the data to send to Django
       final reviewData = {
-        "user_id": widget.userId.toString(),
-        "review_id": widget.reviewId.toString(),
-        "recipe_id": widget.recipeId.toString(),
-        "score": _rating.toInt().toString(),
-        "content": _reviewController.text,
+        'user_id': widget.userId,
+        'review_id': widget.reviewId,
+        'recipe_id': widget.recipeId,
+        'score': _rating.toInt(),
+        'content': _reviewController.text,
       };
 
       if (!widget.hasReviewed) {
-        // Send HTTP POST request to Django
-         try {
-          final response = await http.post(
-            Uri.parse('https://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/catalog/flutter/create'), // Replace with your Django server URL
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: json.encode(reviewData),
-          );
-
-          if (response.statusCode == 200) {
-            final responseData = json.decode(response.body);
-            if (responseData['status'] == 'success') {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Review Submitted Successfully!')),
-              );
-              // Navigate back to RecipeDetails page
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => RecipeDetails(recipeId: widget.recipeId),
-                ),
-              );
-            }
-          } else {
-            // Handle error response
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Failed to submit review.')),
-            );
-          }
-        } catch (e) {
-          // Handle network error
+        // Send POST request to Django
+        final response = await request.postJson(
+                        "https://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/catalog/flutter/create",
+                        jsonEncode(reviewData));
+                        
+        if (response['status'] == 'success') {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Network error, please try again.')),
+            const SnackBar(content: Text('Review Submitted Successfully!')),
+          );
+          // Navigate back to RecipeDetails page
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => RecipeDetails(recipeId: widget.recipeId),
+            ),
+          );
+        } else {
+          // Handle error response
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to submit review.')),
           );
         }
       }else{
         // Update review menggunakan endpoint edit_rating_review_flutter
-        try {
-          final response = await http.post(
-            Uri.parse('https://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/catalog/flutter/edit'), // Endpoint Update
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: jsonEncode(reviewData),
-          );
+        final response = await request.postJson(
+                        "https://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/catalog/flutter/edit",
+                        jsonEncode(reviewData));
 
-          if (response.statusCode == 200) {
-            final responseData = json.decode(response.body);
-            if (responseData['status'] == 'success') {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Review Updated Successfully!')),
-              );
-              // Kembali ke halaman detail resep
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => RecipeDetails(recipeId: widget.recipeId),
-                ),
-              );
-            }
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Failed to update review.')),
-            );
-          }
-        } catch (e) {
+        if (response['status'] == 'success') {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Network error, please try again.')),
+            const SnackBar(content: Text('Review Updated Successfully!')),
+          );
+          // Kembali ke halaman detail resep
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => RecipeDetails(recipeId: widget.recipeId),
+            ),
+          );
+        } else { 
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to update review.')),
           );
         }
       }
@@ -138,6 +113,7 @@ class _RatingReviewFormState extends State<RatingReviewForm> {
   }
 
   void _deleteReview() async {
+    final request = context.read<CookieRequest>();
     // Tampilkan dialog konfirmasi sebelum menghapus
     final confirm = await showDialog<bool>(
       context: context,
@@ -166,37 +142,23 @@ class _RatingReviewFormState extends State<RatingReviewForm> {
         'review_id': widget.reviewId,
       };
 
-      try {
-        final response = await http.post(
-          Uri.parse('https://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/catalog/flutter/delete'), // Endpoint Delete
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: jsonEncode(reviewData),
-        );
-
-        if (response.statusCode == 200) {
-          final responseData = json.decode(response.body);
-          if (responseData['status'] == 'success') {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Review Deleted Successfully!')),
-            );
-            // Kembali ke halaman detail resep
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => RecipeDetails(recipeId: widget.recipeId),
-              ),
-            );
-          }
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Failed to delete review.')),
-          );
-        }
-      } catch (e) {
+      final response = await request.postJson(
+                        "https://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/catalog/flutter/delete",
+                        jsonEncode(reviewData));
+      if (response['status'] == 'success') {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Network error, please try again.')),
+          const SnackBar(content: Text('Review Deleted Successfully!')),
+        );
+        // Kembali ke halaman detail resep
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => RecipeDetails(recipeId: widget.recipeId),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to delete review.')),
         );
       }
     }
