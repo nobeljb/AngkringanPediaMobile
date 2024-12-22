@@ -68,7 +68,7 @@ class _RegisterPageState extends State<RegisterPage> {
       });
 
       final response = await dio.post(
-        "http://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/authentication/register-flutter/",
+        "https://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/authentication/register-flutter/",
         data: formData,
         options: Options(
           headers: {

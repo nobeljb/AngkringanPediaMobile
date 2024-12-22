@@ -50,7 +50,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       try {
         final dio = Dio();
         final url =
-            "http://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/authentication/edit-user-flutter/${widget.profile.fields.user}/";
+            "https://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/authentication/edit-user-flutter/${widget.profile.fields.user}/";
 
         FormData formData = FormData.fromMap({
           'username': _usernameController.text,
