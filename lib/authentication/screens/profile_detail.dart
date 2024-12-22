@@ -34,12 +34,11 @@ class ProfileDetailPage extends StatelessWidget {
               CircleAvatar(
                 backgroundImage: NetworkImage(
                     "https://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/${profile.fields.profileImage}"),
-                    // 127.0.0.1:8000
+                // 127.0.0.1:8000
                 radius: 100,
                 backgroundColor: primaryColor.withOpacity(0.2),
               ),
               const SizedBox(height: 30),
-
               Card(
                 elevation: 6,
                 shape: RoundedRectangleBorder(
@@ -95,7 +94,6 @@ class ProfileDetailPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 30),
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -105,7 +103,8 @@ class ProfileDetailPage extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => EditProfilePage(profile: profile),
+                          builder: (context) =>
+                              EditProfilePage(profile: profile),
                         ),
                       );
                     },
@@ -115,7 +114,8 @@ class ProfileDetailPage extends StatelessWidget {
                       style: TextStyle(fontSize: 18, color: Colors.white),
                     ),
                     style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 16),
                       backgroundColor: primaryColor,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -124,37 +124,90 @@ class ProfileDetailPage extends StatelessWidget {
                   ),
                   const SizedBox(width: 24),
                   // Delete Button
+                  // ElevatedButton.icon(
+                  //   onPressed: () async {
+                  //     final url =
+                  //         "https://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/authentication/adminkudeleteflutter/${profile.fields.user}";
+                  //         // 127.0.0.1:8000
+
+                  //     final response = await http.delete(Uri.parse(url));
+
+                  //     if (response.statusCode == 200) {
+                  //       ScaffoldMessenger.of(context).showSnackBar(
+                  //         const SnackBar(content: Text("User deleted successfully!")),
+                  //       );
+                  //       Navigator.pushReplacement(
+                  //         context,
+                  //         MaterialPageRoute(
+                  //           builder: (context) => const ListProfilePage(),
+                  //         ),
+                  //       );
+                  //     } else {
+                  //       ScaffoldMessenger.of(context).showSnackBar(
+                  //         const SnackBar(content: Text("Failed to delete user.")),
+                  //       );
+                  //     }
+                  //   },
+                  //   icon: const Icon(Icons.delete, size: 30, color: Colors.white),
+                  //   label: const Text(
+                  //     "Delete",
+                  //     style: TextStyle(fontSize: 18, color: Colors.white),
+                  //   ),
+                  //   style: ElevatedButton.styleFrom(
+                  //     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  //     backgroundColor: Colors.red,
+                  //     shape: RoundedRectangleBorder(
+                  //       borderRadius: BorderRadius.circular(12),
+                  //     ),
+                  //   ),
+                  // ),
+
                   ElevatedButton.icon(
                     onPressed: () async {
                       final url =
                           "https://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/authentication/adminkudeleteflutter/${profile.fields.user}";
-                          // 127.0.0.1:8000
 
-                      final response = await http.delete(Uri.parse(url));
+                      try {
+                        // Mengirim permintaan POST dengan parameter untuk menghapus
+                        final response = await http.post(
+                          Uri.parse(url),
+                          body: {
+                            'action': 'delete'
+                          }, // Parameter untuk menunjukkan penghapusan
+                        );
 
-                      if (response.statusCode == 200) {
+                        if (response.statusCode == 200) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text("User deleted successfully!")),
+                          );
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ListProfilePage(),
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text("Failed to delete user.")),
+                          );
+                        }
+                      } catch (e) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("User deleted successfully!")),
-                        );
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const ListProfilePage(),
-                          ),
-                        );
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Failed to delete user.")),
+                          SnackBar(content: Text("An error occurred: $e")),
                         );
                       }
                     },
-                    icon: const Icon(Icons.delete, size: 30, color: Colors.white),
+                    icon:
+                        const Icon(Icons.delete, size: 30, color: Colors.white),
                     label: const Text(
                       "Delete",
                       style: TextStyle(fontSize: 18, color: Colors.white),
                     ),
                     style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 16),
                       backgroundColor: Colors.red,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -170,4 +223,3 @@ class ProfileDetailPage extends StatelessWidget {
     );
   }
 }
-
