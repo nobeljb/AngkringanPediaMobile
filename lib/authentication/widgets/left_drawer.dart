@@ -93,7 +93,7 @@ class LeftDrawer extends StatelessWidget {
               final userId = await storage.read(key: 'id');
 
               final response = await http.get(Uri.parse(
-                  'http://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/authentication/user-detail/$userId'));
+                  'https://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/authentication/user-detail/$userId'));
 
               if (response.statusCode == 200) {
                 final profileData = jsonDecode(response.body);
@@ -123,7 +123,7 @@ class LeftDrawer extends StatelessWidget {
               }
 
               final url =
-                  "http://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/authentication/adminkudeleteflutter/$id";
+                  "https://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/authentication/adminkudeleteflutter/$id";
 
               try {
                 final response = await http.delete(Uri.parse(url));
@@ -177,7 +177,7 @@ class LeftDrawer extends StatelessWidget {
             title: 'Logout',
             onTap: () async {
               final response = await request.logout(
-                  "http://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/authentication/logout-flutter/");
+                  "https://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/authentication/logout-flutter/");
               String message = response["message"];
               if (context.mounted) {
                 if (response['status']) {

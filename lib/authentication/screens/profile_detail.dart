@@ -33,7 +33,7 @@ class ProfileDetailPage extends StatelessWidget {
             children: [
               CircleAvatar(
                 backgroundImage: NetworkImage(
-                    "http://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/${profile.fields.profileImage}"),
+                    "https://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/${profile.fields.profileImage}"),
                 radius: 100,
                 backgroundColor: primaryColor.withOpacity(0.2),
               ),
@@ -126,7 +126,7 @@ class ProfileDetailPage extends StatelessWidget {
                   ElevatedButton.icon(
                     onPressed: () async {
                       final url =
-                          "http://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/authentication/adminkudeleteflutter/${profile.fields.user}";
+                          "https://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/authentication/adminkudeleteflutter/${profile.fields.user}";
 
                       final response = await http.delete(Uri.parse(url));
 
