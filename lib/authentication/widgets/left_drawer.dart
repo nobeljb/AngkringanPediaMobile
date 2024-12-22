@@ -108,60 +108,6 @@ class LeftDrawer extends StatelessWidget {
               }
             },
           ),
-          // _buildDrawerItem(
-          //   context: context,
-          //   icon: Icons.delete,
-          //   title: 'Delete my account',
-          //   onTap: () async {
-          //     final storage = FlutterSecureStorage();
-          //     final id = await storage.read(key: 'id');
-          //     if (id == null) {
-          //       ScaffoldMessenger.of(context).showSnackBar(
-          //         const SnackBar(content: Text('Error: User ID not found.')),
-          //       );
-          //       return;
-          //     }
-
-          //     final url =
-          //         "https://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/authentication/adminkudeleteflutter/$id";
-          //         // 127.0.0.1:8000
-
-          //     try {
-          //       final response = await http.delete(Uri.parse(url));
-
-          //       if (response.statusCode == 200) {
-          //         await storage.deleteAll();
-          //         ScaffoldMessenger.of(context).showSnackBar(
-          //           const SnackBar(
-          //               content: Text('Account deleted successfully.')),
-          //         );
-          //         // Navigator.pushReplacement(
-          //         //   context,
-          //         //   MaterialPageRoute(builder: (context) => const LoginPage()),
-          //         // );
-
-          //         Navigator.pushAndRemoveUntil(
-          //           context,
-          //           MaterialPageRoute(builder: (context) => LoginPage()),
-          //           (Route<dynamic> route) =>
-          //               false, // Menghapus semua stack navigasi
-          //         );
-          //       } else {
-          //         ScaffoldMessenger.of(context).showSnackBar(
-          //           SnackBar(
-          //             content:
-          //                 Text('Failed to delete account: ${response.body}'),
-          //           ),
-          //         );
-          //       }
-          //     } catch (e) {
-          //       ScaffoldMessenger.of(context).showSnackBar(
-          //         SnackBar(content: Text('Error: $e')),
-          //       );
-          //     }
-          //   },
-          // ),
-
           _buildDrawerItem(
             context: context,
             icon: Icons.delete,
@@ -178,30 +124,33 @@ class LeftDrawer extends StatelessWidget {
 
               final url =
                   "https://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/authentication/adminkudeleteflutter/$id";
+                  // 127.0.0.1:8000
 
               try {
-                // Kirim permintaan POST dengan parameter 'action': 'delete'
-                final response = await http.post(
-                  Uri.parse(url),
-                  body: {'action': 'delete'}, // Parameter tambahan untuk penghapusan
-                );
+                final response = await http.delete(Uri.parse(url));
 
                 if (response.statusCode == 200) {
                   await storage.deleteAll();
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Account deleted successfully.')),
+                    const SnackBar(
+                        content: Text('Account deleted successfully.')),
                   );
+                  // Navigator.pushReplacement(
+                  //   context,
+                  //   MaterialPageRoute(builder: (context) => const LoginPage()),
+                  // );
 
-                  // Navigasi ke halaman login dan menghapus semua stack
                   Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(builder: (context) => LoginPage()),
-                    (Route<dynamic> route) => false,
+                    (Route<dynamic> route) =>
+                        false, // Menghapus semua stack navigasi
                   );
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Failed to delete account: ${response.body}'),
+                      content:
+                          Text('Failed to delete account: ${response.body}'),
                     ),
                   );
                 }
