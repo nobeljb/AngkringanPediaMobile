@@ -113,7 +113,7 @@ class _LoginPageState extends State<LoginPage> {
 
                       // Cek kredensial
                       final response = await request.login(
-                        "http://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/authentication/login-flutter/",
+                        "https://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/authentication/login-flutter/",
                         {
                           'username': username,
                           'password': password,
