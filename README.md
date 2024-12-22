@@ -2,7 +2,7 @@
 
 
 ## 🔗 Tautan Deployment
-*[AngkringanPediaMobile](https://build.appcenter.ms/v0.1/apps/242fe279-99fc-4688-9fde-cc338eb8e17c/branches/main/badge)* <--- Click Here!!
+*[AngkringanPediaMobile](https://build.appcenter.ms/v0.1/apps/2a7dcbd4-3d93-46b3-abe8-6dbd7fd0be76/branches/main/badge)* <--- Click Here!!
 
 ## 🔗 Tautan Pelacak Progres
 https://docs.google.com/spreadsheets/d/1N2a_wzHApscAcT2jkCYGwbxMVowg98ffWWfUY7l6-Ls/edit?usp=sharing
