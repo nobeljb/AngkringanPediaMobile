@@ -31,33 +31,26 @@ android {
     }
 
     signingConfigs {
-        release {
-            storeFile file("../../release-keystore.jks")
-            storePassword = "$System.env.KEY_PASSWORD"
-            keyAlias = "release"
-            keyPassword = "$System.env.KEY_PASSWORD"
-        }
+            release {
+                    storeFile file("../../release-keystore.jks")
+                    storePassword = "$System.env.KEY_PASSWORD"
+                    keyAlias = "release"
+                    keyPassword = "$System.env.KEY_PASSWORD"
+            }
     }
-
-    buildTypes {
-        release {
-            minifyEnabled true  // Enable minification
-            shrinkResources true  // Optionally shrink resources
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
-        }
+        buildTypes {
+            release {
+                signingConfig signingConfigs.release
+            }
     }
-}
-
-flutter {
-    source = "../.."  // Ensure this points to the correct Flutter project path
 }
 
 dependencies {
-    // Add these dependencies to resolve missing annotations
-    implementation 'com.google.errorprone:error_prone_annotations:2.10.0' // Or the latest version
-    implementation 'javax.annotation:javax.annotation-api:1.3.2'  // For javax annotations
+    implementation 'com.google.errorprone:error_prone_annotations:2.20.0'
+    implementation 'javax.annotation:javax.annotation-api:1.3.2'
+    implementation 'com.google.code.findbugs:jsr305:3.0.2'
+}
 
-    // Your other dependencies (e.g., Flutter dependencies)
-    implementation 'com.google.crypto.tink:tink-android:1.6.1' // For Google Tink library, if needed
+flutter {
+    source = "../.."
 }
