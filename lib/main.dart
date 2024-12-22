@@ -1,4 +1,4 @@
-// lib/home/main.dart
+// lib/main.dart
 import 'package:angkringan_pedia/authentication/screens/login.dart';
 import 'package:angkringan_pedia/home/theme/app_theme.dart';
 import 'package:flutter/material.dart';

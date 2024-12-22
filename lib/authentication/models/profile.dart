@@ -1,7 +1,7 @@
 // To parse this JSON data, do
 //
 //     final profile = profileFromJson(jsonString);
-
+// lib/authentication/models/profile.dart
 import 'dart:convert';
 
 List<Profile> profileFromJson(String str) => List<Profile>.from(json.decode(str).map((x) => Profile.fromJson(x)));
