@@ -32,6 +32,7 @@ class ProfileDetailPage extends StatelessWidget {
               CircleAvatar(
                 backgroundImage: NetworkImage(
                     "https://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/${profile.fields.profileImage}"),
+                    // 127.0.0.1:8000
                 radius: 100,
                 backgroundColor: primaryColor.withOpacity(0.2),
               ),
@@ -125,6 +126,7 @@ class ProfileDetailPage extends StatelessWidget {
                     onPressed: () async {
                       final url =
                           "https://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/authentication/adminkudeleteflutter/${profile.fields.user}";
+                          // 127.0.0.1:8000
 
                       final response = await http.delete(Uri.parse(url));
 

@@ -42,6 +42,7 @@ class _HeaderState extends State<Header> {
                   final request = context.read<CookieRequest>();
                   final response = await request.logout(
                       "https://malvin-scafi-angkringanpedia.pbp.cs.ui.ac.id/authentication/logout-flutter/");
+                      // 127.0.0.1:8000
 
                   if (response['status']) {
                     ScaffoldMessenger.of(context).showSnackBar(
